@@ -16,7 +16,7 @@
 extern "C" {
 
 JNIEXPORT jobject JNICALL Java_com_keecker_services_utils_sharedmemory_NativeByteBuffer_fdToByteBuffer(
-    JNIEnv * env, jobject thiz, jint fd, jint size) {
+    JNIEnv * env, jobject /*thiz*/, jint fd, jint size) {
     void * ptr = mmap(0, size, PROT_READ, MAP_SHARED, static_cast<int>(fd), 0);
     if (ptr == MAP_FAILED) {
         __android_log_print(ANDROID_LOG_ERROR, "JniNativeByteBuffer",
@@ -34,14 +34,14 @@ JNIEXPORT jobject JNICALL Java_com_keecker_services_utils_sharedmemory_NativeByt
 }
 
 JNIEXPORT jint JNICALL Java_com_keecker_services_utils_sharedmemory_NativeByteBuffer_munmapByteBuffer(
-    JNIEnv * env, jobject thiz, jobject byte_buffer, jint size) {
+    JNIEnv * env, jobject /*thiz*/, jobject byte_buffer, jint size) {
     void * addr = env->GetDirectBufferAddress(byte_buffer);
     int err = munmap(addr, size);
     return err;
 }
 
 JNIEXPORT void JNICALL Java_com_keecker_services_utils_sharedmemory_NativeByteBuffer_copyByteArrayToFd(
-    JNIEnv *env, jobject *thiz, jbyteArray src, jint destFd)
+    JNIEnv *env, jobject /*thiz*/, jbyteArray src, jint destFd)
 {
     jsize array_length = env->GetArrayLength(src);
     jbyte* buffer_ptr = env->GetByteArrayElements(src, NULL);
