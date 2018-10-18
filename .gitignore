@@ -15,29 +15,18 @@ obj/
 libs/
 
 # Local configuration file (sdk path, etc)
-local.properties
-/.idea/workspace.xml
+.idea/workspace.xml
 .DS_Store
-tmp
-/build.gradle
-gradle
-gradlew
-gradlew.bat
-settings.gradle
-versions.gradle
-build.properties
 
 # Eclipse project files
 .classpath
 .project
 
 # Gradle
-.gradle
-build
-gradle.properties
 *.iml
-
 .externalNativeBuild/
+.gradle/
+build/
 
 # IntelliJ IDEA
 .idea
@@ -48,12 +37,5 @@ classes
 gen-external-apklibs
 *.so
 
-# CLion
-cmake-build-debug/
-
-# Python
-*.pyc
-
 # CMakeFiles
 *.user*
-cmake-build-debug/

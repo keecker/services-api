@@ -1,0 +1,121 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    google()
+    maven {
+      url 'http://maven.keecker.com/artifactory/internal-snapshot'
+      name 'keecker'
+      credentials {
+        username = "${artifactory_user}"
+        password = "${artifactory_password}"
+      }
+    }
+  }
+
+  dependencies {
+    classpath 'com.android.tools.build:gradle:3.1.4'
+    classpath 'digital.wup:android-maven-publish:3.6.2'
+  }
+}
+
+allprojects {
+  repositories {
+    mavenLocal()
+    jcenter()
+    google()
+    maven {
+      url 'http://maven.keecker.com/artifactory/internal-snapshot'
+      name 'keecker'
+      credentials {
+        username = "${artifactory_user}"
+        password = "${artifactory_password}"
+      }
+    }
+  }
+
+  gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+      options.compilerArgs << '-Xlint:deprecation'
+      options.compilerArgs << '-Xlint:unchecked'
+    }
+  }
+}
+
+// Library definition
+
+apply plugin: 'com.android.library'
+
+android {
+  compileSdkVersion 27
+
+  defaultConfig {
+    minSdkVersion 23
+    targetSdkVersion 27
+    versionCode 1
+    versionName '1.0'
+    multiDexEnabled true
+    testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
+    ndk { abiFilters 'arm64-v8a' }
+  }
+
+  externalNativeBuild { cmake { path "CMakeLists.txt" } }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+    }
+  }
+
+  aidlPackageWhiteList "com/keecker/services/utils/IIpcSubscriber.aidl"
+  aidlPackageWhiteList "com/keecker/services/utils/sharedmemory/ISharedMemorySubscriber.aidl"
+  aidlPackageWhiteList "com/keecker/hardware/robot/interfaces/MovementSafetiesStatus.aidl"
+  aidlPackageWhiteList "com/keecker/services/utils/ILowBatteryNotificationListener.aidl"
+}
+
+dependencies {
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'org.mockito:mockito-core:2.8.9'
+  androidTestImplementation 'com.android.support.test:rules:1.0.1'
+}
+
+// Artifact definition
+
+def gitTag() {
+  def tag = ''
+  def proc = 'git describe --abbrev=0 --tags'.execute()
+  proc.in.eachLine { line -> tag = line }
+  proc.err.eachLine { line -> println line }
+  proc.waitFor()
+  tag
+}
+
+version = gitTag()
+group = 'com.keecker.services'
+archivesBaseName = 'interfaces'
+
+apply plugin: 'digital.wup.android-maven-publish'
+publishing {
+  publications {
+    android.libraryVariants.all { variant ->
+      "maven${variant.name.capitalize()}Aar"(MavenPublication) {
+        from components.findByName("android${variant.name.capitalize()}")
+        groupId "${group}"
+        artifactId "${archivesBaseName}"
+        version "${version}-${variant.name}"
+      }
+    }
+  }
+
+  repositories {
+    maven {
+      url 'http://maven.keecker.com/artifactory/internal-snapshot-local'
+      name 'keecker'
+      credentials {
+        username = "${artifactory_user}"
+        password = "${artifactory_password}"
+      }
+    }
+  }
+}
+
