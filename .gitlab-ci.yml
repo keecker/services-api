@@ -1,0 +1,29 @@
+image: eu.gcr.io/x5-omega-messenger-8/services:v4
+
+variables:
+  GRADLE_USER_HOME: "${CI_PROJECT_DIR}/.gradle"
+
+before_script:
+  - mkdir -p $GRADLE_USER_HOME
+  - mv /root/gradle.properties $GRADLE_USER_HOME/gradle.properties
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - ./gradlew build
+  cache:
+    key: gradle_cache
+    paths:
+      - .gradle/
+
+
+deploy:
+  stage: deploy
+  script:
+    - ./gradlew publish
+  only:
+    - tags

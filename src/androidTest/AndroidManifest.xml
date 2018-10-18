@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.keecker.services.utils.test"
+          android:versionCode="3"
+          android:versionName="0.3">
+
+    <application
+        android:label="UtilsTest">
+        <service android:name="com.keecker.services.utils.pubsub.DumbPublisher"
+                 android:process=":pub"/>
+        <service android:name="com.keecker.services.utils.pubsub.DumbSubscriber"
+                 android:process=":sub"/>
+
+        <service
+            android:name="com.keecker.services.utils.KeeckerServiceConnectionTest$AidlOuterProcessService"
+            android:process=":test_binder">
+            <intent-filter>
+                <action
+                    android:name="com.keecker.services.utils.test.BIND_OUTER_PROCESS" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.keecker.services.utils.KeeckerServiceConnectionTest$AidlInnerProcessService">
+            <intent-filter>
+                <action
+                    android:name="com.keecker.services.utils.test.BIND_INNER_PROCESS" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.keecker.services.utils.KeeckerServiceConnectionTest$SleepyProcessService"
+            android:process=":test_binder_sleepy">
+            <intent-filter>
+                <action
+                    android:name="com.keecker.services.utils.test.BIND_SLEEPY_PROCESS" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="com.keecker.services.utils.KeeckerServiceConnectionTest$CrashyProcessService"
+            android:process=":test_binder_crashy">
+            <intent-filter>
+                <action
+                    android:name="com.keecker.services.utils.test.BIND_CRASHY_PROCESS" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.keecker.services.utils.ipc.PublisherService"
+            android:process=":ipc_pub"/>
+
+        <service android:name="com.keecker.services.utils.ipc.IpcCommunication$OneWayService"
+                 android:process=":ipc_comm"/>
+
+        <service android:name="com.keecker.services.utils.ipc.IpcSameProcess$InnerProcessPublisherService"/>
+
+        <service android:name="com.keecker.services.utils.sharedmemory.FruitPublisherService"
+            android:process=":ipc_fruit_pub">
+        </service>
+
+    </application>
+</manifest>
