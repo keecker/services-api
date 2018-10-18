@@ -1,0 +1,59 @@
+# built application files
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Java class files
+*.class
+
+# generated files
+bin/
+gen/
+obj/
+libs/
+
+# Local configuration file (sdk path, etc)
+local.properties
+/.idea/workspace.xml
+.DS_Store
+tmp
+/build.gradle
+gradle
+gradlew
+gradlew.bat
+settings.gradle
+versions.gradle
+build.properties
+
+# Eclipse project files
+.classpath
+.project
+
+# Gradle
+.gradle
+build
+gradle.properties
+*.iml
+
+.externalNativeBuild/
+
+# IntelliJ IDEA
+.idea
+*.iml
+*.ipr
+*.iws
+classes
+gen-external-apklibs
+*.so
+
+# CLion
+cmake-build-debug/
+
+# Python
+*.pyc
+
+# CMakeFiles
+*.user*
+cmake-build-debug/
