@@ -15,6 +15,8 @@ buildscript {
   dependencies {
     classpath 'com.android.tools.build:gradle:3.1.4'
     classpath 'digital.wup:android-maven-publish:3.6.2'
+    classpath 'com.squareup.wire:wire-compiler:2.0.4-SNAPSHOT-jar-with-dependencies'
+    classpath 'com.squareup.wire:wire-gradle-plugin:1.0.0-SNAPSHOT'
   }
 }
 
@@ -44,6 +46,7 @@ allprojects {
 // Library definition
 
 apply plugin: 'com.android.library'
+apply plugin: 'com.squareup.wire'
 
 android {
   compileSdkVersion 27
@@ -74,6 +77,8 @@ android {
 }
 
 dependencies {
+  implementation 'com.squareup.wire:wire-runtime:2.0.3'
+
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.mockito:mockito-core:2.8.9'
   androidTestImplementation 'com.android.support.test:rules:1.0.1'
