@@ -7,44 +7,39 @@ import com.keecker.services.utils.geometry.Quaternion;
 import com.keecker.services.utils.geometry.Transform;
 import com.keecker.services.utils.geometry.Vector3;
 
-import java.util.Arrays;
-
-/**
- * Created by xavier on 12/02/18.
- */
-public class DetectionResult implements Parcelable{
+public class DetectionPose implements Parcelable{
     public final Transform transform;
     public final double confidence;
     public final double timestamp;
 
-    protected DetectionResult(Parcel in) {
+    protected DetectionPose(Parcel in) {
         transform = in.readParcelable(Transform.class.getClassLoader());
         confidence = in.readDouble();
         timestamp = in.readDouble();
     }
 
-    public static final Creator<DetectionResult> CREATOR = new Creator<DetectionResult>() {
+    public static final Creator<DetectionPose> CREATOR = new Creator<DetectionPose>() {
         @Override
-        public DetectionResult createFromParcel(Parcel in) {
-            return new DetectionResult(in);
+        public DetectionPose createFromParcel(Parcel in) {
+            return new DetectionPose(in);
         }
 
         @Override
-        public DetectionResult[] newArray(int size) {
-            return new DetectionResult[size];
+        public DetectionPose[] newArray(int size) {
+            return new DetectionPose[size];
         }
     };
 
     @Override
     public String toString() {
-        return "DetectionResult{" +
+        return "DetectionPose{" +
                 "transform=" + transform +
                 ", confidence=" + confidence +
                 ", timestamp=" + timestamp +
                 '}';
     }
 
-    public DetectionResult(float result[], double confidence, double timestamp) {
+    public DetectionPose(float result[], double confidence, double timestamp) {
         this.transform = new Transform(
             new Vector3(result[0], result[1], result[2]),
             Quaternion.fromTheta(result[3])
