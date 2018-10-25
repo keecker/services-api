@@ -1,8 +1,8 @@
 // IChargingStationListener.aidl
 package com.keecker.services.navigation.interfaces;
 
-import com.keecker.services.navigation.interfaces.DetectionResult;
+import com.keecker.services.navigation.interfaces.DetectionPose;
 
 oneway interface IChargingStationListener {
-      void onChargingStationPerceived(in DetectionResult detectionResult);
+      void onChargingStationPerceived(in DetectionPose detectionPose);
 }
