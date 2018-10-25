@@ -43,6 +43,24 @@ allprojects {
   }
 }
 
+// Help functions
+
+def gitTag() {
+  def tag = ''
+  def proc = 'git describe --abbrev=0 --tags'.execute()
+  proc.in.eachLine { line -> tag = line }
+  proc.err.eachLine { line -> println line }
+  proc.waitFor()
+  tag
+}
+
+def verNum  = gitTag()
+println "verNum: $verNum"
+def verVals = verNum.split('\\.')
+println "verVals: $verVals"
+int verCode = (verVals[0].toInteger()*10000 + verVals[1].toInteger()*100 + verVals[2]) as Integer
+println "verCode: $verCode"
+
 // Library definition
 
 apply plugin: 'com.android.library'
@@ -86,16 +104,6 @@ dependencies {
 
 // Artifact definition
 
-def gitTag() {
-  def tag = ''
-  def proc = 'git describe --abbrev=0 --tags'.execute()
-  proc.in.eachLine { line -> tag = line }
-  proc.err.eachLine { line -> println line }
-  proc.waitFor()
-  tag
-}
-
-version = gitTag()
 group = 'com.keecker.services'
 archivesBaseName = 'interfaces'
 
@@ -107,7 +115,7 @@ publishing {
         from components.findByName("android${variant.name.capitalize()}")
         groupId "${group}"
         artifactId "${archivesBaseName}"
-        version "${version}-${variant.name}"
+        version "${verNum}-${variant.name}"
       }
     }
   }
