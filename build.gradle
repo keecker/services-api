@@ -1,3 +1,8 @@
+ext {
+  ARTIFACT_GROUP_ID = "com.keecker.services"
+  ARTIFACT_ID = "interfaces"
+}
+
 buildscript {
   repositories {
     mavenLocal()
@@ -109,10 +114,7 @@ dependencies {
   androidTestImplementation 'com.android.support.test:rules:1.0.1'
 }
 
-// Artifact definition
-
-group = 'com.keecker.services'
-archivesBaseName = 'interfaces'
+archivesBaseName = "$ARTIFACT_GROUP_ID.$ARTIFACT_ID"
 
 apply plugin: 'digital.wup.android-maven-publish'
 publishing {
@@ -120,8 +122,8 @@ publishing {
     android.libraryVariants.all { variant ->
       "maven${variant.name.capitalize()}Aar"(MavenPublication) {
         from components.findByName("android${variant.name.capitalize()}")
-        groupId "${group}"
-        artifactId "${archivesBaseName}"
+        groupId "${ARTIFACT_GROUP_ID}"
+        artifactId "${ARTIFACT_ID}"
         version "${verNum}-${variant.name}"
       }
     }
