@@ -64,7 +64,7 @@ def gitTag() {
 
 def verNum  = gitTag()
 println "verNum: $verNum"
-def verVals = verNum.split('\\.')
+def verVals = verNum.split('-')[0].split('\\.')
 println "verVals: $verVals"
 int verCode = (verVals[0].toInteger()*10000 + verVals[1].toInteger()*100 + verVals[2]) as Integer
 println "verCode: $verCode"
