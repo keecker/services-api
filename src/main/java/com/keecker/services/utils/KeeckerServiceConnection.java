@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @hide
  */
 public class KeeckerServiceConnection<T> {
-    private static final String TAG = KeeckerServiceConnection.class.getSimpleName();
+    public static final String TAG = KeeckerServiceConnection.class.getSimpleName();
     public static final String AS_INTERFACE = "asInterface";
     public static final String STUB_CLASS_SUFFIX = "$Stub";
 
