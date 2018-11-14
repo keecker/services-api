@@ -7,6 +7,7 @@ buildscript {
   repositories {
     mavenLocal()
     google()
+    jcenter()
     maven {
       url 'http://maven.keecker.com/artifactory/internal-snapshot'
       name 'keecker'
@@ -18,6 +19,7 @@ buildscript {
   }
 
   ext.kotlin_version = '1.2.71'
+  ext.dokka_version = '0.9.17'
 
   dependencies {
     classpath 'com.android.tools.build:gradle:3.1.4'
@@ -25,6 +27,7 @@ buildscript {
     classpath 'com.squareup.wire:wire-compiler:2.0.4-SNAPSHOT-jar-with-dependencies'
     classpath 'com.squareup.wire:wire-gradle-plugin:1.0.0-SNAPSHOT'
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:$dokka_version"
   }
 }
 
@@ -74,6 +77,7 @@ println "verCode: $verCode"
 apply plugin: 'com.android.library'
 apply plugin: 'com.squareup.wire'
 apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.dokka-android'
 
 android {
   compileSdkVersion 27
@@ -107,7 +111,9 @@ android {
 dependencies {
   implementation 'com.squareup.wire:wire-runtime:2.0.3'
 
-  compileOnly "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.30.2"
+
 
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.mockito:mockito-core:2.8.9'
@@ -140,4 +146,10 @@ publishing {
     }
   }
 }
+
+dokka {
+  outputFormat = 'jekyll'
+  outputDirectory = "$buildDir/javadoc"
+}
+
 
