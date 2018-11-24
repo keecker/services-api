@@ -58,7 +58,7 @@ allprojects {
 
 def gitTag() {
   def tag = ''
-  def proc = 'git describe --abbrev=0 --tags'.execute()
+  def proc = 'git describe --abbrev=0 --tags'.execute([], projectDir)
   proc.in.eachLine { line -> tag = line }
   proc.err.eachLine { line -> println line }
   proc.waitFor()
