@@ -26,14 +26,6 @@ allprojects {
     mavenLocal()
     google()
     jcenter()
-    maven {
-      url 'http://maven.keecker.com/artifactory/internal-snapshot'
-      name 'keecker'
-      credentials {
-        username = "${artifactory_user}"
-        password = "${artifactory_password}"
-      }
-    }
   }
 
   gradle.projectsEvaluated {
