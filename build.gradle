@@ -15,8 +15,6 @@ buildscript {
 
   dependencies {
     classpath 'com.android.tools.build:gradle:3.1.4'
-    classpath 'com.squareup.wire:wire-compiler:2.0.4-SNAPSHOT-jar-with-dependencies'
-    classpath 'com.squareup.wire:wire-gradle-plugin:1.0.0-SNAPSHOT'
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:$dokka_version"
     classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
@@ -70,7 +68,6 @@ println "verCode: $verCode"
 // Library definition
 
 apply plugin: 'com.android.library'
-apply plugin: 'com.squareup.wire'
 apply plugin: 'kotlin-android'
 apply plugin: 'org.jetbrains.dokka-android'
 
