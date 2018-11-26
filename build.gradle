@@ -1,6 +1,6 @@
 ext {
-  ARTIFACT_GROUP_ID = "com.keecker.services"
-  ARTIFACT_ID = "interfaces"
+  ARTIFACT_GROUP_ID = "com.github.keecker"
+  ARTIFACT_ID = "services-api"
 }
 
 buildscript {
@@ -8,14 +8,6 @@ buildscript {
     mavenLocal()
     google()
     jcenter()
-    maven {
-      url 'http://maven.keecker.com/artifactory/internal-snapshot'
-      name 'keecker'
-      credentials {
-        username = "${artifactory_user}"
-        password = "${artifactory_password}"
-      }
-    }
   }
 
   ext.kotlin_version = '1.3.0'
@@ -23,11 +15,11 @@ buildscript {
 
   dependencies {
     classpath 'com.android.tools.build:gradle:3.1.4'
-    classpath 'digital.wup:android-maven-publish:3.6.2'
     classpath 'com.squareup.wire:wire-compiler:2.0.4-SNAPSHOT-jar-with-dependencies'
     classpath 'com.squareup.wire:wire-gradle-plugin:1.0.0-SNAPSHOT'
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:$dokka_version"
+    classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
   }
 }
 
@@ -125,34 +117,11 @@ dependencies {
 
 archivesBaseName = "$ARTIFACT_GROUP_ID.$ARTIFACT_ID"
 
-apply plugin: 'digital.wup.android-maven-publish'
-publishing {
-  publications {
-    android.libraryVariants.all { variant ->
-      "maven${variant.name.capitalize()}Aar"(MavenPublication) {
-        from components.findByName("android${variant.name.capitalize()}")
-        groupId "${ARTIFACT_GROUP_ID}"
-        artifactId "${ARTIFACT_ID}"
-        version "${verNum}-${variant.name}"
-      }
-    }
-  }
-
-  repositories {
-    maven {
-      url 'http://maven.keecker.com/artifactory/internal-snapshot-local'
-      name 'keecker'
-      credentials {
-        username = "${artifactory_user}"
-        password = "${artifactory_password}"
-      }
-    }
-  }
-}
-
 dokka {
   outputFormat = 'jekyll'
   outputDirectory = "$buildDir/javadoc"
 }
 
+apply plugin: 'com.github.dcendents.android-maven'
 
+group='com.github.keecker'
