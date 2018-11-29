@@ -31,7 +31,7 @@ Please check the [**Keecker Android SDK website**](http://developer.keecker.com)
 
    ```gradle
         dependencies {
-            implementation 'com.github.keecker:services-api:Release'
+            implementation 'com.github.keecker:services-api:0.2.0-alpha'
         }
    ```
 
