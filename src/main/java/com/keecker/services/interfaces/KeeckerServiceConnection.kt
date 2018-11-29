@@ -23,6 +23,7 @@ package com.keecker.services.interfaces
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.IInterface
 import android.os.Looper
@@ -59,13 +60,13 @@ interface ServiceBindingInfo<ServiceInterface : IInterface> {
 }
 
 /**
- * Wraps an Android [android.content.ServiceConnection] to be used in coroutines.
+ * Wraps an Android [ServiceConnection] to be used in coroutines.
  *
  * Like an Android ServiceConnection, it may attempt to bind again if the remote service crashed,
  * but it won't do it if dead or unbound.
  */
 class EphemeralServiceConnection(val context: Context, val intent: Intent) :
-        android.content.ServiceConnection {
+        ServiceConnection {
 
     /**
      * A task that will be completed on the [onServiceConnected] callback,
@@ -79,7 +80,7 @@ class EphemeralServiceConnection(val context: Context, val intent: Intent) :
 
     /**
      * Called when a connection to the Service has been established, with
-     * the [android.os.IBinder] of the communication channel to the
+     * the [IBinder] of the communication channel to the
      * Service.
      *
      * **Note:** If the system has started to bind your
@@ -120,7 +121,7 @@ class EphemeralServiceConnection(val context: Context, val intent: Intent) :
      * happens when the process hosting the service has crashed or been killed.
      * This does *not* remove the ServiceConnection itself -- this
      * binding to the service will remain active, and you will receive a call
-     * to {@link #onServiceConnected} when the Service is next running.
+     * to [onServiceConnected] when the Service is next running.
      *
      * @param name The concrete component name of the service whose
      * connection has been lost.

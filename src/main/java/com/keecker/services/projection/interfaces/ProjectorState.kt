@@ -3,28 +3,32 @@ package com.keecker.services.projection.interfaces
 import android.os.Parcel
 import android.os.Parcelable
 /**
- * ProjectorParams is the class for the projector parameters.**
+ * Aggregates all the information about the projector:
+ *  - settings
+ *  - position
+ *  - power
  *
- * List of the projector parameters :
- *
- * - A power state, projector ON or OFF
- * - A LED state, projector LED ON or OFF
- * - An angle the verin control the projector position
- * - A focusKnobPosition the focusKnobPosition control the image quality
- * - A keystone the projector keystone
- * - A zoom the image zoom
- * - A brightness the image brightness
- * - A contrast the image contrast
- * - A displayMode
- * - A displayPosition
- * - An aspectRatio
- *
+ * @param orientation Angle between the projected image bottom and the horizon. Between 0 and 78 degrees.
+ * @param focus Focus knob position between 0 and 100.
+ * @param autoFocus Automatically set the focus based on wall distance. Overrides [focus].
+ * @param autoKeystone Automatically set the keystone based on [orientation]
+ * @param disabled No longer used.
+ * @param powerOn Tells if the projector is powered.
+ * @param ledOn Tells if the LEDs are on.
+ * @param keystone Shapes the image. Between -40 and 40 degrees.
+ * @param zoom Projected image zoom. Between 0 and 100.
+ * @param brightness Projected image brightness between 0 and 100.
+ * @param contrast Projected image contrast between 0 and 100.
+ * @param displayMode [DisplayMode]
+ * @param displayPosition [DisplayPosition]
+ * @param aspectRatio [AspectRatio]
  */
 data class ProjectorState(
         val orientation: Int? = null,
         val focus: Int? = null,
         val autoFocus: Boolean? = null,
         val autoKeystone: Boolean? = null,
+        @Deprecated("No longer used")
         val disabled: Boolean? = null,
         val powerOn: Boolean? = null,
         val ledOn: Boolean? = null,
@@ -37,8 +41,19 @@ data class ProjectorState(
         val aspectRatio: AspectRatio? = null
 ) : Parcelable {
 
+    /*
+     * TODO(cyril) Provide a way to set the focus value in meters
+     * TODO(cyril) Remap to -50 50
+     */
+
+    /**
+     * [Parcelable] boilerplate.
+     */
     companion object CREATOR : Parcelable.Creator<ProjectorState> {
 
+        /**
+         * [Parcelable] boilerplate.
+         */
         override fun createFromParcel(parcel: Parcel): ProjectorState {
             return ProjectorState(
             readIntegerOrNull(parcel),
@@ -58,6 +73,9 @@ data class ProjectorState(
 
         }
 
+        /**
+         * [Parcelable] boilerplate.
+         */
         override fun newArray(size: Int): Array<ProjectorState?> {
             return arrayOfNulls(size)
         }
@@ -118,6 +136,9 @@ data class ProjectorState(
             }
         }
 
+        /**
+         * Default settings, mainly used for unit tests.
+         */
         @JvmStatic
         val defaultState = ProjectorState(
             orientation = 10,
@@ -136,8 +157,14 @@ data class ProjectorState(
             aspectRatio = AspectRatio.R16_9)
     }
 
+    /**
+     * [Parcelable] boilerplate.
+     */
     override fun describeContents() = 0
 
+    /**
+     * [Parcelable] boilerplate.
+     */
     override fun writeToParcel(dest: Parcel, flags: Int) {
         writeIntegerOrNull(orientation, dest)
         writeIntegerOrNull(focus, dest)

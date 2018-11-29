@@ -8,6 +8,7 @@ import com.keecker.services.utils.KeeckerServiceConnection;
  * Created by Thomas Gallagher <thomas@keecker.com> on 4/18/17.
  */
 
+@Deprecated
 public class MovementPerceptionServiceConnector extends KeeckerServiceConnection<IMovementPerceptionService> {
 
     private static final String PACKAGE_NAME = "com.keecker.services";

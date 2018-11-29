@@ -8,9 +8,6 @@ package com.keecker.services.projection.interfaces;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * DisplayMode represents preset setting of the projector
- */
 public enum DisplayMode implements Parcelable {
     BRIGHTEST(0x00),
     VIVID(0x01),

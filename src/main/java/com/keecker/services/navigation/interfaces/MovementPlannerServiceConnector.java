@@ -9,6 +9,7 @@ import android.content.Context;
 
 import com.keecker.services.utils.KeeckerServiceConnection;
 
+@Deprecated
 public class MovementPlannerServiceConnector extends KeeckerServiceConnection<IMovementPlannerService> {
 
     private static final String PACKAGE_NAME = "com.keecker.services";

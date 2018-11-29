@@ -139,4 +139,21 @@ publishing {
 dokka {
   outputFormat = 'jekyll'
   outputDirectory = "$buildDir/javadoc"
+  moduleName = 'services-api'
+
+  skipDeprecated = true
+
+  // Suppress legacy packages, still not in the official API
+  packageOptions {
+    prefix = "com.keecker.services.utils"
+    suppress = true
+  }
+  packageOptions {
+    prefix = "com.keecker.common"
+    suppress = true
+  }
+  packageOptions {
+    prefix = "com.keecker.hardware.camera"
+    suppress = true
+  }
 }

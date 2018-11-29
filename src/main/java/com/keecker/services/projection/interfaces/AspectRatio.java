@@ -8,9 +8,6 @@ package com.keecker.services.projection.interfaces;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * AspectRatio represents available projection ratio
- */
 public enum AspectRatio implements Parcelable {
     R4_3(0x01),
     R16_9(0x02),

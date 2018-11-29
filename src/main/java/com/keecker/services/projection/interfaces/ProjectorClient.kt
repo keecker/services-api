@@ -16,8 +16,10 @@
 package com.keecker.services.projection.interfaces
 
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import com.keecker.services.interfaces.KeeckerServiceConnection
 import com.keecker.services.interfaces.PersistentServiceConnection
 import com.keecker.services.interfaces.ServiceBindingInfo
 import com.keecker.services.utils.CompletableFutureCompat
@@ -27,14 +29,35 @@ import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.async
 import java.util.*
 
+/**
+ * Projector client interface for Kotlin.
+ */
 interface ProjectorCoroutineClient {
+
+    /**
+     * @param state Projector state parameters to change, null for the others.
+     */
     suspend fun setState(projectorState: ProjectorState): Boolean
+
+    /**
+     * @return All the projector state parameters.
+     */
     suspend fun getState(): ProjectorState
 
+    /**
+     * @param listener Get notified when any of the projector parameters changes.
+     */
     suspend fun subscribeToState(subscriber: IProjectorStateListener): Unit
+
+    /**
+     * @param listener Stop to get about changes.
+     */
     suspend fun unsubscribeToState(subscriber: IProjectorStateListener): Unit
 }
 
+/**
+ * Projector client interface for Java.
+ */
 interface ProjectorAsyncClient {
     fun setStateAsync(projectorState: ProjectorState) : CompletableFutureCompat<Boolean>
     fun getStateAsync() : CompletableFutureCompat<ProjectorState>
@@ -43,6 +66,14 @@ interface ProjectorAsyncClient {
     fun unsubscribeToStateAsync(subscriber: IProjectorStateListener) : CompletableFutureCompat<Unit>
 }
 
+/**
+ * Gives access to the Projector Service:
+ * - settings
+ * - position
+ * - power
+ *
+ * @param connection Connection bound to the Projector Service.
+ */
 class ProjectorClient(val connection: PersistentServiceConnection<IProjectorService>) :
         ProjectorCoroutineClient,
         ProjectorAsyncClient {
@@ -50,6 +81,12 @@ class ProjectorClient(val connection: PersistentServiceConnection<IProjectorServ
     init {
         connection.onNewServiceInstance { onReconnect() }
     }
+
+    /**
+     * Constructs the client with a default [connection].
+     */
+    constructor(context: Context) : this(KeeckerServiceConnection<IProjectorService>(
+            context.applicationContext, bindingInfo))
 
     companion object {
         val bindingInfo = object : ServiceBindingInfo<IProjectorService> {
@@ -67,10 +104,10 @@ class ProjectorClient(val connection: PersistentServiceConnection<IProjectorServ
         }
     }
 
-    val stateSubscribers = HashSet<IProjectorStateListener>()
+    private val stateSubscribers = HashSet<IProjectorStateListener>()
 
     // Legacy subscriber, will be replaced by IProjectorStateListener
-    val stateSubscriber = object : IpcSubscriber<ProjectorState>(ProjectorState::class.java) {
+    private val stateSubscriber = object : IpcSubscriber<ProjectorState>(ProjectorState::class.java) {
         override fun onNewMessage(msg: ProjectorState?) {
             for (listener in stateSubscribers) {
                 listener.onUpdate(msg)
@@ -78,12 +115,14 @@ class ProjectorClient(val connection: PersistentServiceConnection<IProjectorServ
         }
     }
 
+
     override suspend fun subscribeToState(listener: IProjectorStateListener) {
         if (stateSubscribers.size == 0) {
             connection.execute { it.subscribeToState(stateSubscriber) }
         }
         stateSubscribers.add(listener)
     }
+
 
     override suspend fun unsubscribeToState(listener: IProjectorStateListener) {
         stateSubscribers.remove(listener)
@@ -97,6 +136,7 @@ class ProjectorClient(val connection: PersistentServiceConnection<IProjectorServ
             connection.execute { it.subscribeToState(stateSubscriber) }
         }
     }
+
 
     override suspend fun setState(state: ProjectorState): Boolean {
         return connection.execute { it.setState(state) } ?: false
@@ -130,12 +170,5 @@ class ProjectorClient(val connection: PersistentServiceConnection<IProjectorServ
         return GlobalScope.async {
             subscribeToState(subscriber)
         }.asCompletableFuture()
-    }
-
-    /**
-     * Temporarily unbind subscribers will be re subscribed on reconnect.
-     */
-    fun unbind() {
-        connection.unbind()
     }
 }
