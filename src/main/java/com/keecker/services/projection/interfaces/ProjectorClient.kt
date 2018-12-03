@@ -107,6 +107,7 @@ class ProjectorClient(val connection: PersistentServiceConnection<IProjectorServ
     private val stateSubscribers = HashSet<IProjectorStateListener>()
 
     // Legacy subscriber, will be replaced by IProjectorStateListener
+    // TODO(cyril) move to listener
     private val stateSubscriber = object : IpcSubscriber<ProjectorState>(ProjectorState::class.java) {
         override fun onNewMessage(msg: ProjectorState?) {
             for (listener in stateSubscribers) {
@@ -168,7 +169,7 @@ class ProjectorClient(val connection: PersistentServiceConnection<IProjectorServ
 
     override fun unsubscribeToStateAsync(subscriber: IProjectorStateListener): CompletableFutureCompat<Unit> {
         return GlobalScope.async {
-            subscribeToState(subscriber)
+            unsubscribeToState(subscriber)
         }.asCompletableFuture()
     }
 }
