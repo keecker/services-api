@@ -17,6 +17,7 @@ libs/
 # Local configuration file (sdk path, etc)
 .idea/workspace.xml
 .DS_Store
+local.properties
 
 # Eclipse project files
 .classpath
