@@ -19,10 +19,9 @@
 package com.keecker.services.navigation.interfaces
 
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import com.keecker.services.interfaces.KeeckerServiceConnection
+import com.keecker.services.interfaces.ApiChecker
 import com.keecker.services.interfaces.PersistentServiceConnection
 import com.keecker.services.interfaces.ServiceBindingInfo
 import com.keecker.services.utils.CompletableFutureCompat
@@ -32,19 +31,10 @@ import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.async
 import java.util.*
 
-/**
- * Projector client interface for Kotlin.
- */
-interface MovementPerceptionCoroutineClient {
+interface PerceptionCoroutineClient {
 
-    /**
-     * @param listener Get notified when any of the projector parameters changes.
-     */
     suspend fun subscribeToOdometry(subscriber: IOdometryListener)
 
-    /**
-     * @param listener Stop to get about changes.
-     */
     suspend fun unsubscribeToOdometry(subscriber: IOdometryListener)
 
     suspend fun subscribeToWallDetection(subscriber: IWallSegmentationListener)
@@ -54,28 +44,25 @@ interface MovementPerceptionCoroutineClient {
     suspend fun detectWall(): PlaneSegmentationResult?
 }
 
-/**
- * Projector client interface for Java.
- */
-interface MovementPerceptionAsyncClient {
+interface PerceptionAsyncClient {
     fun subscribeToOdometryAsync(subscriber: IOdometryListener) : CompletableFutureCompat<Unit>
     fun unsubscribeToOdometryAsync(subscriber: IOdometryListener) : CompletableFutureCompat<Unit>
+
+    fun subscribeToWallDetectionAsync(subscriber: IWallSegmentationListener):
+            CompletableFutureCompat<Unit>
+    fun unsubscribeToWallDetectionAsync(subscriber: IWallSegmentationListener):
+            CompletableFutureCompat<Unit>
+
+    fun detectWallAsync(): CompletableFutureCompat<PlaneSegmentationResult?>
 }
 
-/**
- * Gives access to the Projector Service:
- * - settings
- * - position
- * - power
- *
- * @param connection Connection bound to the Projector Service.
- */
 class PerceptionClient(
-        val mvtPerceptionConnection: PersistentServiceConnection<IMovementPerceptionService>,
-        val perceptionConnection: PersistentServiceConnection<IPerceptionService>
+        private val mvtPerceptionConnection: PersistentServiceConnection<IMovementPerceptionService>,
+        private val perceptionConnection: PersistentServiceConnection<IPerceptionService>,
+        private val apiChecker: ApiChecker
         ) :
-        MovementPerceptionCoroutineClient,
-        MovementPerceptionAsyncClient {
+        PerceptionCoroutineClient,
+        PerceptionAsyncClient {
 
     init {
         mvtPerceptionConnection.onNewServiceInstance {
@@ -84,15 +71,6 @@ class PerceptionClient(
             }
         }
     }
-
-    /**
-     * Constructs the client with a default [connection].
-     */
-    constructor(context: Context) : this(
-            KeeckerServiceConnection<IMovementPerceptionService>(
-                    context.applicationContext, mvtPerceptionBindingInfo),
-            KeeckerServiceConnection<IPerceptionService>(
-                    context.applicationContext, perceptionBindingInfo))
 
     companion object {
         val mvtPerceptionBindingInfo = object : ServiceBindingInfo<IMovementPerceptionService> {
@@ -110,10 +88,10 @@ class PerceptionClient(
         }
         val perceptionBindingInfo = object : ServiceBindingInfo<IPerceptionService> {
             override fun getIntent(): Intent {
-                val intent = Intent("com.keecker.services.navigation.ACTION_BIND_MOVEMENT_PERCEPTION")
+                val intent = Intent("com.keecker.services.navigation.ACTION_BIND_PERCEPTION")
                 intent.component = ComponentName(
                         "com.keecker.services",
-                        "com.keecker.services.navigation.MovementPerceptionService")
+                        "com.keecker.services.navigation.perception.PerceptionService")
                 return intent
             }
 
@@ -155,20 +133,43 @@ class PerceptionClient(
             }
         }
         subscribeToWallDetection(subscriber)
+        // TODO(cyril) use default connection timeout?
         deferred.await()
         unsubscribeToWallDetection(subscriber)
         return deferred.getCompleted()
     }
 
-    override fun subscribeToOdometryAsync(subscriber: IOdometryListener): CompletableFutureCompat<Unit> {
+    override fun subscribeToOdometryAsync(subscriber: IOdometryListener):
+            CompletableFutureCompat<Unit> {
         return GlobalScope.async {
             subscribeToOdometry(subscriber)
         }.asCompletableFuture()
     }
 
-    override fun unsubscribeToOdometryAsync(subscriber: IOdometryListener): CompletableFutureCompat<Unit> {
+    override fun unsubscribeToOdometryAsync(subscriber: IOdometryListener):
+            CompletableFutureCompat<Unit> {
         return GlobalScope.async {
             unsubscribeToOdometry(subscriber)
+        }.asCompletableFuture()
+    }
+
+    override fun subscribeToWallDetectionAsync(subscriber: IWallSegmentationListener):
+            CompletableFutureCompat<Unit> {
+        return GlobalScope.async {
+            subscribeToWallDetection(subscriber)
+        }.asCompletableFuture()
+    }
+
+    override fun unsubscribeToWallDetectionAsync(subscriber: IWallSegmentationListener):
+            CompletableFutureCompat<Unit> {
+        return GlobalScope.async {
+            unsubscribeToWallDetection(subscriber)
+        }.asCompletableFuture()
+    }
+
+    override fun detectWallAsync(): CompletableFutureCompat<PlaneSegmentationResult?> {
+        return GlobalScope.async {
+            detectWall()
         }.asCompletableFuture()
     }
 }

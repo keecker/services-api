@@ -24,11 +24,11 @@ package com.keecker.services.navigation.interfaces
 import android.os.Parcel
 import android.os.Parcelable
 
-data class KidnappingStatus(val success: Boolean): Parcelable {
+data class KidnappingStatus(val kidnapped: Boolean): Parcelable {
     constructor(parcel: Parcel) : this(parcel.readInt() == 1)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(if (success) 1 else 0)
+        parcel.writeInt(if (kidnapped) 1 else 0)
     }
 
     override fun describeContents(): Int {

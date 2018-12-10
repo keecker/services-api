@@ -241,6 +241,7 @@ class KeeckerServiceConnectionTest {
 
     // TODO(cyril) Check id there is a way to handle this better
     // TODO(cyril) Wrong binding action when testing on Keecker with a service in another process
+    // TODO(cyril) This happens when not on Keecker
     @Test()
     fun wrongBindingComponentSilentlyFails() = runBlocking<Unit> {
         val badBindingIntentInfo = object : ServiceBindingInfo<IAidlTest> {

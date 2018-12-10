@@ -181,4 +181,16 @@ data class ProjectorState(
         writeParcelableOrNull(displayPosition, dest, flags)
         writeParcelableOrNull(aspectRatio, dest, flags)
     }
+
+    fun withOrientation(value: Int): ProjectorState {
+        return copy(orientation = value)
+    }
+
+    fun withFocus(value: Int): ProjectorState {
+        return copy(focus = value)
+    }
+
+    fun withKeystone(value: Int): ProjectorState {
+        return copy(keystone = value)
+    }
 }

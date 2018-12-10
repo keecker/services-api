@@ -20,6 +20,7 @@ package com.keecker.services.interfaces
 
 import android.annotation.SuppressLint
 import android.content.Context
+import com.keecker.services.navigation.interfaces.PerceptionClient
 import com.keecker.services.projection.interfaces.ProjectorClient
 
 /**
@@ -30,7 +31,16 @@ object KeeckerServices {
     lateinit var applicationContext : Context
 
     private val projectorClient: ProjectorClient by lazy {
-        ProjectorClient(KeeckerServiceConnection(applicationContext, ProjectorClient.bindingInfo), apiClient)
+        ProjectorClient(
+                KeeckerServiceConnection(applicationContext, ProjectorClient.bindingInfo),
+                apiClient)
+    }
+
+    private val perceptionClient: PerceptionClient by lazy {
+        PerceptionClient(
+                KeeckerServiceConnection(applicationContext, PerceptionClient.mvtPerceptionBindingInfo),
+                KeeckerServiceConnection(applicationContext, PerceptionClient.perceptionBindingInfo),
+                apiClient)
     }
 
     private val apiClient : ApiClient by lazy {
@@ -43,6 +53,12 @@ object KeeckerServices {
     fun getProjectorClient(context: Context) : ProjectorClient {
         initApplicationContext(context)
         return projectorClient
+    }
+
+    @JvmStatic
+    fun getPerceptionClient(context: Context) : PerceptionClient {
+        initApplicationContext(context)
+        return perceptionClient
     }
 
     private fun initApplicationContext(context: Context) {

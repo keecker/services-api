@@ -22,6 +22,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -29,13 +30,14 @@ import com.keecker.services.interfaces.Constants.LOG_TAG
 import java.util.*
 
 enum class Feature(val permissions : List<String>) {
-    PROJECTOR_ACCESS_STATE(listOf("com.keecker.permissions.PROJECTOR"))
+    PROJECTOR_ACCESS_STATE(listOf("com.keecker.permission.PROJECTION"))
 }
 
 enum class FeatureAvailabilty {AVAILABLE, NOT_AVAILABLE, NOT_ALLOWED}
 
 interface ApiChecker {
     suspend fun getVersion() : String?
+    fun isRunningOnKeecker() : Boolean
     suspend fun isFeatureAvailable(feature: Feature) : FeatureAvailabilty
 }
 
@@ -47,7 +49,7 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
                 val intent = Intent("com.keecker.services.interfaces.ACTION_BIND_API_SERVICE")
                 intent.component = ComponentName(
                         "com.keecker.services",
-                        "com.keecker.services.interfaces.ApiClientService")
+                        "com.keecker.services.interfaces.ApiService")
                 return intent
             }
 
@@ -55,6 +57,10 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
                 return IApiService.Stub.asInterface(binder)
             }
         }
+    }
+
+    override fun isRunningOnKeecker(): Boolean {
+        return Build.BRAND == "Keecker"
     }
 
     // TODO(cyril) ask again on reconnect to handle updates?
@@ -70,7 +76,12 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
             version = servicesInfos.getString("version")
             val featuresStr = servicesInfos.getStringArrayList("features")
             for (feature in featuresStr) {
-                features.put(Feature.valueOf(feature), FeatureAvailabilty.NOT_ALLOWED)
+                // TODO(cyril) unit test valueOf fails when unkown feature
+                try {
+                    features.put(Feature.valueOf(feature), FeatureAvailabilty.NOT_ALLOWED)
+                } catch (e: IllegalArgumentException) {
+                    // This feature is not known to this sdk version.
+                }
             }
         } else {
             Log.e(LOG_TAG, "Unable to retrieve Keecker Services API version")
