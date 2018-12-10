@@ -24,8 +24,19 @@ import kotlinx.coroutines.experimental.runBlocking
 import org.junit.Test
 import org.mockito.Mockito.*
 
-class MyClassIWantToTest(val projectorClient: ProjectorCoroutineClient) {
-    fun helloProjector() = runBlocking {
+class SomeLogicIWantToTest {
+
+    // Projector client that you want to be mocked. It is initialized by onCreate when
+    // running normally, or initialized manually by a mock when unit testing.
+    lateinit var projectorClient: ProjectorCoroutineClient
+
+    // A typical way to get a projector client in an Android Service / Activity would be:
+
+    // fun onCreate() {
+    //    projectorClient = KeeckerServices.getProjectorClient(this)
+    // }
+
+    suspend fun helloProjector() {
         projectorClient.getState()
     }
 }
@@ -34,11 +45,14 @@ class ClientsCanBeUsedAndMockedInKotlin {
 
     @Test
     fun `client interacts with projector`() = runBlocking<Unit> {
+        val someLogicIWantToTest = SomeLogicIWantToTest()
+
         val projectorClientMock = mock(ProjectorCoroutineClient::class.java)
-        val myClassIWantToTest = MyClassIWantToTest(projectorClientMock)
+        someLogicIWantToTest.projectorClient = projectorClientMock
         `when`(projectorClientMock.getState()).thenReturn(ProjectorState.defaultState)
 
-        myClassIWantToTest.helloProjector()
+        someLogicIWantToTest.helloProjector()
+
         verify(projectorClientMock, times(1)).getState()
     }
 }

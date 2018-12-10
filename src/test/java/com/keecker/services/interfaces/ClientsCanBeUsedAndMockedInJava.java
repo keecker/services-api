@@ -29,7 +29,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
+/*
  * Some tests written while developing the API, to check the interoperability between kotlin
  * and Java.
  * If the projector client can be injected somehow, you will be able to mock it.
@@ -44,41 +44,23 @@ import static org.mockito.Mockito.when;
  *        someRemoteCall()
  *    }
  *   ```
- *
- * - Give a way to await in Java:
- *    ```
- *    fun <T> javaAvait(def: Deferred<T>) : T = runBlocking {
- *        def.await()
- *    }
- *    ```
+ *   Instead we defined a custom [CompletableFutureCompat].
  */
 
 public class ClientsCanBeUsedAndMockedInJava {
 
-    /**
-     * A sample class using a Keecker Services Client. You want to test that interaction.
-     */
-    public static class MyClassIWantToTest {
+    public static class SomeLogicIWantToTest {
 
-        /**
-         * Kotlin suspend functions are not really usable in Java, we advise to use the
-         * asynchronous interface.
-         */
+        // Projector client that you want to be mocked. It is initialized by onCreate when
+        // running normally, or initialized manually by a mock when unit testing.
         private ProjectorAsyncClient projectorClient;
 
-        /**
-         * If the client can be injected somehow, you will be able to test its interaction with
-         * your Java code.
-         *
-         * @param projectorClient injected Keecker Services Client
-         */
-        MyClassIWantToTest(ProjectorAsyncClient projectorClient) {
-            this.projectorClient = projectorClient;
-        }
+        // A typical way to get a projector client in an Android Service / Activity would be
+        //
+        // void onCreate() {
+        //    projectorClient = KeeckerServices.getProjectorClient(this);
+        //}
 
-        /**
-         * Interacts with the Keecker Projector
-         */
         void helloProjector() {
             projectorClient.getStateAsync().get();
         }
@@ -86,13 +68,16 @@ public class ClientsCanBeUsedAndMockedInJava {
 
     @Test
     public void projectorClientInteraction() {
+        // Mock the projector client to return a completed future containing
+        // a default projector state.
         ProjectorAsyncClient projectorClientMock = mock(ProjectorAsyncClient.class);
-        MyClassIWantToTest myClassIWantToTest = new MyClassIWantToTest(projectorClientMock);
-
         CompletableFutureCompat<ProjectorState> deferred = new CompletableFutureCompat<>();
         deferred.complete(ProjectorState.getDefaultState());
-
         when(projectorClientMock.getStateAsync()).thenReturn(deferred);
+
+        SomeLogicIWantToTest myClassIWantToTest = new SomeLogicIWantToTest();
+        myClassIWantToTest.projectorClient = projectorClientMock;
+
         myClassIWantToTest.helloProjector();
         verify(projectorClientMock, times(1)).getStateAsync();
     }

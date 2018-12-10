@@ -16,12 +16,11 @@
 package com.keecker.services.projection.interfaces
 
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import com.keecker.services.interfaces.KeeckerServiceConnection
-import com.keecker.services.interfaces.PersistentServiceConnection
-import com.keecker.services.interfaces.ServiceBindingInfo
+import android.util.Log
+import com.keecker.services.interfaces.*
+import com.keecker.services.interfaces.Constants.LOG_TAG
 import com.keecker.services.utils.CompletableFutureCompat
 import com.keecker.services.utils.IpcSubscriber
 import com.keecker.services.utils.asCompletableFuture
@@ -42,17 +41,17 @@ interface ProjectorCoroutineClient {
     /**
      * @return All the projector state parameters.
      */
-    suspend fun getState(): ProjectorState
+    suspend fun getState(): ProjectorState?
 
     /**
      * @param listener Get notified when any of the projector parameters changes.
      */
-    suspend fun subscribeToState(subscriber: IProjectorStateListener): Unit
+    suspend fun subscribeToState(subscriber: IProjectorStateListener)
 
     /**
      * @param listener Stop to get about changes.
      */
-    suspend fun unsubscribeToState(subscriber: IProjectorStateListener): Unit
+    suspend fun unsubscribeToState(subscriber: IProjectorStateListener)
 }
 
 /**
@@ -60,7 +59,7 @@ interface ProjectorCoroutineClient {
  */
 interface ProjectorAsyncClient {
     fun setStateAsync(projectorState: ProjectorState) : CompletableFutureCompat<Boolean>
-    fun getStateAsync() : CompletableFutureCompat<ProjectorState>
+    fun getStateAsync() : CompletableFutureCompat<ProjectorState?>
 
     fun subscribeToStateAsync(subscriber: IProjectorStateListener) : CompletableFutureCompat<Unit>
     fun unsubscribeToStateAsync(subscriber: IProjectorStateListener) : CompletableFutureCompat<Unit>
@@ -74,19 +73,14 @@ interface ProjectorAsyncClient {
  *
  * @param connection Connection bound to the Projector Service.
  */
-class ProjectorClient(val connection: PersistentServiceConnection<IProjectorService>) :
+class ProjectorClient(private val connection: PersistentServiceConnection<IProjectorService>,
+                      private val apiChecker: ApiChecker) :
         ProjectorCoroutineClient,
         ProjectorAsyncClient {
 
     init {
         connection.onNewServiceInstance { onReconnect() }
     }
-
-    /**
-     * Constructs the client with a default [connection].
-     */
-    constructor(context: Context) : this(KeeckerServiceConnection<IProjectorService>(
-            context.applicationContext, bindingInfo))
 
     companion object {
         val bindingInfo = object : ServiceBindingInfo<IProjectorService> {
@@ -104,6 +98,22 @@ class ProjectorClient(val connection: PersistentServiceConnection<IProjectorServ
         }
     }
 
+    suspend fun isApiAccessible() : Boolean {
+        return when (apiChecker.isFeatureAvailable(Feature.PROJECTOR_ACCESS_STATE)) {
+            FeatureAvailabilty.AVAILABLE -> true
+            FeatureAvailabilty.NOT_ALLOWED -> {
+                Log.e(LOG_TAG,
+                        "API call not allowed, a required permission have not been granted")
+                false}
+            FeatureAvailabilty.NOT_AVAILABLE -> {
+                val clientVersion = BuildConfig.VERSION_NAME
+                val servicesVersion = apiChecker.getVersion() ?: "Unknown"
+                Log.e(LOG_TAG, "Unsupported API call, " +
+                    "Services version: $servicesVersion, client version: $clientVersion")
+                false}
+        }
+    }
+
     private val stateSubscribers = HashSet<IProjectorStateListener>()
 
     // Legacy subscriber, will be replaced by IProjectorStateListener
@@ -116,16 +126,16 @@ class ProjectorClient(val connection: PersistentServiceConnection<IProjectorServ
         }
     }
 
-
     override suspend fun subscribeToState(listener: IProjectorStateListener) {
+        if (!isApiAccessible()) return
         if (stateSubscribers.size == 0) {
             connection.execute { it.subscribeToState(stateSubscriber) }
         }
         stateSubscribers.add(listener)
     }
 
-
     override suspend fun unsubscribeToState(listener: IProjectorStateListener) {
+        if (!isApiAccessible()) return
         stateSubscribers.remove(listener)
         if (stateSubscribers.size == 0) {
             connection.execute { it.unsubscribeToState(stateSubscriber) }
@@ -138,15 +148,14 @@ class ProjectorClient(val connection: PersistentServiceConnection<IProjectorServ
         }
     }
 
-
     override suspend fun setState(state: ProjectorState): Boolean {
+        if (!isApiAccessible()) return false
         return connection.execute { it.setState(state) } ?: false
     }
 
-    override suspend fun getState(): ProjectorState {
-        while (true) {
-            return connection.execute { it.getState() } ?: continue
-        }
+    override suspend fun getState(): ProjectorState? {
+        if (!isApiAccessible()) return null
+        return connection.execute { it.getState() }
     }
 
     override fun setStateAsync(projectorState: ProjectorState) : CompletableFutureCompat<Boolean> {
@@ -155,7 +164,7 @@ class ProjectorClient(val connection: PersistentServiceConnection<IProjectorServ
         }.asCompletableFuture()
     }
 
-    override fun getStateAsync() : CompletableFutureCompat<ProjectorState> {
+    override fun getStateAsync() : CompletableFutureCompat<ProjectorState?> {
         return GlobalScope.async {
             getState()
         }.asCompletableFuture()
