@@ -7,7 +7,9 @@
  */
 package com.keecker.services.navigation.interfaces;
 
+import android.graphics.RectF;
 import com.keecker.common.utils.map.Pose;
+import com.keecker.hardware.camera.interfaces.Frame;
 import com.keecker.hardware.camera.interfaces.VideoFormat;
 import com.keecker.services.navigation.interfaces.IChargingStationListener;
 import com.keecker.services.navigation.interfaces.ITrackedPoseListener;
@@ -25,7 +27,7 @@ interface IPerceptionService {
     Pose detectChargingStation();
     List<DetectionResult> detect(in VideoFormat cameraType, in ModelID type);
 
-    ITrackingController startTracking(in DetectionResult objectToTrack, in ITrackedPoseListener objectPositionListener);
+    ITrackingController startTracking(in RectF box, in Frame frame, in ITrackedPoseListener objectPositionListener);
 
     void subscribeToChargingStationDetector(IChargingStationListener sub);
     void unsubscribeToChargingStationDetector(IChargingStationListener sub);

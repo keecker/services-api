@@ -21,7 +21,7 @@
 
 package com.keecker.projection.interfaces
 
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class ProjectorCoroutineClientTest {

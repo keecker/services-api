@@ -1,9 +1,12 @@
 package com.keecker.services.navigation.interfaces;
 
-import com.keecker.services.navigation.interfaces.DetectionResult;
+import android.graphics.RectF;
+import com.keecker.hardware.camera.interfaces.Frame;
 
 /** @hide */
 interface ITrackingController {
-    void reset(in DetectionResult box);
+    void prepareReset();
+    void cancelReset();
+    void reset(in RectF box, in Frame frame);
     void stoptracking();
 }

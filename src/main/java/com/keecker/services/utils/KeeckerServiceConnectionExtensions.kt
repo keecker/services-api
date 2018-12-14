@@ -3,7 +3,6 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-@file:Suppress("EXPERIMENTAL_FEATURE_WARNING")
 
 package com.keecker.services.utils
 
@@ -11,8 +10,9 @@ import android.os.IBinder
 import android.os.IInterface
 import android.os.RemoteCallbackList
 import android.util.Log
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 
 sealed class Result<Type, Error>
 data class Success<Type, Error>(val value: Type): Result<Type, Error>()
@@ -78,11 +78,11 @@ class SuspendableServiceConnection<Binder>(private val serviceConnection: Keecke
         val binderChannel = Channel<Binder?>(1)
         serviceConnection.getBinder(object : KeeckerServiceConnection.AsyncBinderListener<Binder> {
             override fun onBindSuccessful(binder: Binder) {
-                launch { binderChannel.send(binder) }
+                GlobalScope.launch { binderChannel.send(binder) }
             }
 
             override fun onBindError() {
-                launch { binderChannel.send(null) }
+                GlobalScope.launch { binderChannel.send(null) }
             }
         })
         return binderChannel.receive()
@@ -151,7 +151,7 @@ class ChannelDeathRecipient<Element>(private val completionChannel: Channel<Elem
     private var binder: IBinder? = null
 
     override fun binderDied() {
-        launch {
+        GlobalScope.launch {
             try {
                 completionChannel.send(failureValue)
                 completionChannel.close()

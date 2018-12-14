@@ -1,6 +1,6 @@
 package com.keecker.services.utils
 
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.Deferred
 import java.util.concurrent.*
 
 /**
@@ -9,7 +9,7 @@ import java.util.concurrent.*
  *
  * From kotlinx-coroutines-jdk8/src/future/Future.kt
  */
-public fun <T> Deferred<T>.asCompletableFuture(): CompletableFutureCompat<T> {
+fun <T> Deferred<T>.asCompletableFuture(): CompletableFutureCompat<T> {
     val future = CompletableFutureCompat<T>()
     // TODO(cyril) Handle cancelation
     //future.whenComplete { _, exception -> cancel(exception) }

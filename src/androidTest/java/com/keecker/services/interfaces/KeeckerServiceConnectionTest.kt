@@ -31,10 +31,10 @@ import com.keecker.services.projection.interfaces.IProjectorService
 import com.keecker.services.utils.KeeckerServiceConnectionTest
 import com.keecker.services.utils.test.IAidlTest
 import com.keecker.services.utils.test.OneWayListener
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.sendBlocking
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule

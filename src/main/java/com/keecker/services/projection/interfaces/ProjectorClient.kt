@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("EXPERIMENTAL_FEATURE_WARNING")
 package com.keecker.services.projection.interfaces
 
 import android.content.ComponentName
@@ -24,8 +23,8 @@ import com.keecker.services.interfaces.Constants.LOG_TAG
 import com.keecker.services.utils.CompletableFutureCompat
 import com.keecker.services.utils.IpcSubscriber
 import com.keecker.services.utils.asCompletableFuture
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import java.util.*
 
 /**

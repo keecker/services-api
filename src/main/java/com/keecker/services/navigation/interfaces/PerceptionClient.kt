@@ -15,7 +15,6 @@
  *
  * Created by Cyril Lugan <cyril@keecker.com> on 2018-11-30.
  */
-@file:Suppress("EXPERIMENTAL_FEATURE_WARNING")
 package com.keecker.services.navigation.interfaces
 
 import android.content.ComponentName
@@ -26,9 +25,9 @@ import com.keecker.services.interfaces.PersistentServiceConnection
 import com.keecker.services.interfaces.ServiceBindingInfo
 import com.keecker.services.utils.CompletableFutureCompat
 import com.keecker.services.utils.asCompletableFuture
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import java.util.*
 
 interface PerceptionCoroutineClient {

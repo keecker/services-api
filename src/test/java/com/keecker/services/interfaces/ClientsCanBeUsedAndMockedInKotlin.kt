@@ -20,7 +20,7 @@ package com.keecker.services.interfaces
 
 import com.keecker.services.projection.interfaces.ProjectorCoroutineClient
 import com.keecker.services.projection.interfaces.ProjectorState
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.mockito.Mockito.*
 

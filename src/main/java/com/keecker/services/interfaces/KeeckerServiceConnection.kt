@@ -16,8 +16,6 @@
  * Created by Cyril Lugan <cyril@keecker.com> on 2018-11-20.
  */
 
-@file:Suppress("EXPERIMENTAL_FEATURE_WARNING")
-
 package com.keecker.services.interfaces
 
 import android.content.ComponentName
@@ -27,8 +25,8 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.IInterface
 import android.os.Looper
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.withTimeoutOrNull
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.*
 
 /**
