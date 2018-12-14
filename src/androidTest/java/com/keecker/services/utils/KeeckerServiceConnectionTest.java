@@ -393,8 +393,8 @@ public class KeeckerServiceConnectionTest {
         }
 
         @Override public void publishMessage(String msg) {
-            final int N = mSubscribers.beginBroadcast();
-            for (int i = 0; i < N; i++) {
+            final int n = mSubscribers.beginBroadcast();
+            for (int i = 0; i < n; i++) {
                 try {
                     mSubscribers.getBroadcastItem(i).onNewMessage(msg);
                 } catch (RemoteException e) {

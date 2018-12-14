@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Created by Cyril Lugan <cyril@keecker.com> on 2018-12-05.
+ * Created by Cyril Lugan on 2018-12-05.
  */
 
 package com.keecker.services.interfaces
@@ -57,6 +57,9 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
                 return IApiService.Stub.asInterface(binder)
             }
         }
+
+        const val INFO_VERSION = "version"
+        const val INFO_FEATURES = "features"
     }
 
     override fun isRunningOnKeecker(): Boolean {
@@ -69,12 +72,12 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
 
     suspend fun checkApi(): Bundle? {
         val clientInfos = Bundle()
-        clientInfos.putString("version", BuildConfig.VERSION_NAME)
+        clientInfos.putString(INFO_VERSION, BuildConfig.VERSION_NAME)
         val servicesInfos = connection.execute { it.checkApi(clientInfos) }
         connection.unbind()
         if (servicesInfos != null) {
-            version = servicesInfos.getString("version")
-            val featuresStr = servicesInfos.getStringArrayList("features")
+            version = servicesInfos.getString(INFO_VERSION)
+            val featuresStr = servicesInfos.getStringArrayList(INFO_FEATURES)
             for (feature in featuresStr) {
                 // TODO(cyril) unit test valueOf fails when unkown feature
                 try {

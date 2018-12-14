@@ -8,6 +8,9 @@ package com.keecker.services.navigation.interfaces;
 import android.content.Context;
 import com.keecker.services.utils.KeeckerServiceConnection;
 
+/**
+ * @deprecated  As of release 0.2.0, replaced by {@link PerceptionClient}
+ */
 @Deprecated
 public class PerceptionServiceConnector extends KeeckerServiceConnection<IPerceptionService> {
 

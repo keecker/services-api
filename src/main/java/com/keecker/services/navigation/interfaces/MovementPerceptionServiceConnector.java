@@ -3,11 +3,13 @@ package com.keecker.services.navigation.interfaces;
 import android.content.Context;
 
 import com.keecker.services.utils.KeeckerServiceConnection;
-
-/**
- * Created by Thomas Gallagher <thomas@keecker.com> on 4/18/17.
+/*
+ * Created by Thomas Gallagher on 4/18/17.
  */
 
+/**
+ * @deprecated  As of release 0.2.0, replaced by {@link PerceptionClient}
+ */
 @Deprecated
 public class MovementPerceptionServiceConnector extends KeeckerServiceConnection<IMovementPerceptionService> {
 

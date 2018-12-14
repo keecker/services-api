@@ -3,7 +3,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  *
- * Created by Florent Remis <florent@keecker.com> on 05/09/17.
+ * Created by Florent Remis on 05/09/17.
  *
  */
 package com.keecker.services.navigation.interfaces;

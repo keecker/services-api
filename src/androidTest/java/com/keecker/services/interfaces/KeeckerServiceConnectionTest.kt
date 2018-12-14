@@ -16,7 +16,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  *
- * Created by Cyril Lugan <cyril@keecker.com> on 2018-11-28.
+ * Created by Cyril Lugan on 2018-11-28.
  */
 
 package com.keecker.services.interfaces
@@ -122,7 +122,7 @@ class KeeckerServiceConnectionTest {
     }
 
     @Test
-    fun doesNotNotifyAboutNewServiceInstanceWhenReconnectingToTheSameInstance() = runBlocking<Unit> {
+    fun doesNotNotifyAboutReconnectingToTheSameInstance() = runBlocking<Unit> {
         // Starts a service, so it keeps running when disconnecting
         context.startService(outerProcessBindingInfo.getIntent())
         val connection = KeeckerServiceConnection(context, outerProcessBindingInfo)

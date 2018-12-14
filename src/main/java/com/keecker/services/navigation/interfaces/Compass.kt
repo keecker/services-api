@@ -16,7 +16,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  *
- * Created by Cyril Lugan <cyril@keecker.com> on 2018-11-26.
+ * Created by Cyril Lugan on 2018-11-26.
  */
 
 package com.keecker.services.navigation.interfaces

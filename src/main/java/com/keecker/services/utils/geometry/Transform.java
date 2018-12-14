@@ -3,7 +3,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  *
- * Created by Cyril Lugan <cyril@keecker.com> on 19/02/16.
+ * Created by Cyril Lugan on 19/02/16.
  *
  * Coordinates transformation class, mostly used in native code for now.
  * It it represented by a translation (x,y,z vector) and a rotation (x,y,z,w quaternion).

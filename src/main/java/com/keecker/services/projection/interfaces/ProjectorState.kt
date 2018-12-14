@@ -3,7 +3,7 @@ package com.keecker.services.projection.interfaces
 import android.os.Parcel
 import android.os.Parcelable
 /**
- * Aggregates all the information about the projector:
+ * Aggregates information about the projector:
  *  - settings
  *  - position
  *  - power

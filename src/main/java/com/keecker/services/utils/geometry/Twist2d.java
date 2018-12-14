@@ -3,7 +3,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  *
- * Created by Thomas Gallagher <thomas@keecker.com> on 08/02/16.
+ * Created by Thomas Gallagher on 08/02/16.
  */
 package com.keecker.services.utils.geometry;
 

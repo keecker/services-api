@@ -3,7 +3,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  *
- * Created by Thomas Gallagher <thomas@keecker.com> on 24/11/15.
+ * Created by Thomas Gallagher on 24/11/15.
  */
 package com.keecker.services.utils.sharedmemory;
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Created by Cyril Lugan <cyril@keecker.com> on 2018-11-30.
+ * Created by Cyril Lugan on 2018-11-30.
  */
 package com.keecker.services.navigation.interfaces
 

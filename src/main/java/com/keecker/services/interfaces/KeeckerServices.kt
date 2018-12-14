@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Created by Cyril Lugan <cyril@keecker.com> on 2018-12-06.
+ * Created by Cyril Lugan on 2018-12-06.
  */
 
 package com.keecker.services.interfaces
@@ -23,10 +23,19 @@ import android.content.Context
 import com.keecker.services.navigation.interfaces.PerceptionClient
 import com.keecker.services.projection.interfaces.ProjectorClient
 
-/**
- * Holds a static reference to an application context, which should not cause a leak.
+/*
+ * Android will warn us about storing an arbitrary Context in a static field. If it were
+ * an activity Context for instance, this would create an infinite reference to that activity,
+ * causing a leak.
+ *
+ * To prevent this we store the application context which is tied to the life cycle of the whole
+ * application. The warning still has to be disabled manually.
  */
 @SuppressLint("StaticFieldLeak")
+
+/**
+ * Main entry point to get Keecker Service Clients
+ */
 object KeeckerServices {
     lateinit var applicationContext : Context
 

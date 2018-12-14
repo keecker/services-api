@@ -3,7 +3,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  *
- * Created by Thomas Gallagher <thomas@keecker.com> on 19/04/16.
+ * Created by Thomas Gallagher on 19/04/16.
  *
  * The implementation is taken from https://github.com/libgdx/libgdx/blob/master/gdx/src/com/badlogic/gdx/math/Quaternion.java
  *
