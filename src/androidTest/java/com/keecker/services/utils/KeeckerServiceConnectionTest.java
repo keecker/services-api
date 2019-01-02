@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.keecker.services.utils.test.IAidlTest;
+import com.keecker.services.utils.test.OneWayListener;
 
 import junit.framework.AssertionFailedError;
 
@@ -372,12 +374,50 @@ public class KeeckerServiceConnectionTest {
 
     private static class AidlBinder extends IAidlTest.Stub {
 
-        @Override public int getProcessId() throws RemoteException {
+        private RemoteCallbackList<OneWayListener> mSubscribers = new RemoteCallbackList<>();
+
+        @Override public int getProcessId() {
             return android.os.Process.myPid();
         }
 
-        @Override public void crash() throws RemoteException {
+        @Override public void crash() {
             System.exit(42);
+        }
+
+        @Override public void subscribeToMessages(OneWayListener clientListener) {
+            mSubscribers.register(clientListener);
+        }
+
+        @Override public void unsubscribeToMessages(OneWayListener clientListener) {
+            mSubscribers.unregister(clientListener);
+        }
+
+        @Override public void publishMessage(String msg) {
+            final int n = mSubscribers.beginBroadcast();
+            for (int i = 0; i < n; i++) {
+                try {
+                    mSubscribers.getBroadcastItem(i).onNewMessage(msg);
+                } catch (RemoteException e) {
+                    // This subscriber is dead
+                }
+            }
+            mSubscribers.finishBroadcast();
+        }
+
+        @Override public void publishMessagesDelayed(final int count, final long delayMs) {
+            new Thread() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < count; ++i) {
+                        try {
+                            Thread.sleep(delayMs);
+                        } catch (InterruptedException e) {
+                            return;
+                        }
+                        publishMessage(Integer.toString(i));
+                    }
+                }
+            }.start();
         }
     }
 

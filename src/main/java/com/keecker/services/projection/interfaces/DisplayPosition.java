@@ -8,9 +8,6 @@ package com.keecker.services.projection.interfaces;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * DisplayPosition represents all possible flip for the projected image
- */
 public enum DisplayPosition implements Parcelable {
     FRONT_TABLE(0x00),
     FRONT_CEILING(0x01),

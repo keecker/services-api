@@ -9,7 +9,7 @@ import android.content.Context;
 
 import com.keecker.services.utils.KeeckerServiceConnection;
 
-/** @hide */
+@Deprecated
 public class ProjectorServiceConnector extends KeeckerServiceConnection<IProjectorService>{
 
     private static final String PACKAGE_NAME = "com.keecker.services";

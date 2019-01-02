@@ -3,7 +3,7 @@
  *  Unauthorized copying of this file, via any medium is strictly prohibited
  *  Proprietary and confidential
  *
- *  Created by Emeric Colombe<emeric@keecker.com>
+ *  Created by Emeric Colombe
  *
  */
 package com.keecker.services.navigation.interfaces

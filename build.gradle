@@ -90,8 +90,12 @@ dependencies {
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
 
   testImplementation 'junit:junit:4.12'
-  testImplementation 'org.mockito:mockito-core:2.8.9'
-  androidTestImplementation 'com.android.support.test:rules:1.0.1'
+  testImplementation 'org.mockito:mockito-core:2.23.0'
+  testImplementation 'javax.inject:javax.inject:1'
+  androidTestImplementation 'com.android.support.test:rules:1.0.2'
+  // TODO(cyril) update when updating Android Gradle Plugin
+  androidTestImplementation 'org.mockito:mockito-android:2.22.0'
+  androidTestImplementation 'javax.inject:javax.inject:1'
 }
 
 // Uses fully qualified archives base name to prevent duplicates
@@ -135,4 +139,21 @@ publishing {
 dokka {
   outputFormat = 'jekyll'
   outputDirectory = "$buildDir/javadoc"
+  moduleName = 'services-api'
+
+  skipDeprecated = true
+
+  // Suppress legacy packages, still not in the official API
+  packageOptions {
+    prefix = "com.keecker.services.utils"
+    suppress = true
+  }
+  packageOptions {
+    prefix = "com.keecker.common"
+    suppress = true
+  }
+  packageOptions {
+    prefix = "com.keecker.hardware.camera"
+    suppress = true
+  }
 }

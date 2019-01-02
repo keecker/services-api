@@ -12,19 +12,15 @@
                  android:process=":sub"/>
 
         <service
+            android:name="com.keecker.services.utils.KeeckerServiceConnectionTest$AidlInnerProcessService">
+        </service>
+
+        <service
             android:name="com.keecker.services.utils.KeeckerServiceConnectionTest$AidlOuterProcessService"
             android:process=":test_binder">
             <intent-filter>
                 <action
                     android:name="com.keecker.services.utils.test.BIND_OUTER_PROCESS" />
-            </intent-filter>
-        </service>
-
-        <service
-            android:name="com.keecker.services.utils.KeeckerServiceConnectionTest$AidlInnerProcessService">
-            <intent-filter>
-                <action
-                    android:name="com.keecker.services.utils.test.BIND_INNER_PROCESS" />
             </intent-filter>
         </service>
 
