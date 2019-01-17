@@ -23,6 +23,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import com.keecker.services.interfaces.navigation.PerceptionClient
 import com.keecker.services.interfaces.projection.ProjectorClient
+import com.keecker.services.navigation.interfaces.MovementClient
 
 /*
  * Android will warn us about storing an arbitrary Context in a static field. If it were
@@ -58,6 +59,12 @@ object KeeckerServices {
                 apiClient)
     }
 
+    private val movementClient: MovementClient by lazy {
+        MovementClient(
+                KeeckerServiceConnection(applicationContext, MovementClient.mvtPlannerBindingInfo),
+                apiClient)
+    }
+
     private val apiClient : ApiClient by lazy {
         val isPermissionGranted = { perm: String ->
             applicationContext.checkCallingOrSelfPermission(perm) ==
@@ -78,6 +85,12 @@ object KeeckerServices {
     fun getPerceptionClient(context: Context) : PerceptionClient {
         initApplicationContext(context)
         return perceptionClient
+    }
+
+    @JvmStatic
+    fun getMovementClient(context: Context) : MovementClient {
+        initApplicationContext(context)
+        return movementClient
     }
 
     private fun initApplicationContext(context: Context) {
