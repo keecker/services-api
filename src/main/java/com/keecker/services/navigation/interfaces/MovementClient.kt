@@ -35,14 +35,30 @@ interface MovementCoroutineClient {
 
     /**
      * @param x distance in meters on the x axis (front)
-     * @param y distance in meters on the y axis (right)
+     * @param y distance in meters on the y axis (left)
      * @return A boolean indicating if the go to succeeded
      */
     suspend fun goToRelative(x: Double, y: Double, theta: Double): Boolean
+
+    /**
+     * Set a velocity command, it needs to be updated every 100 ms to keep
+     * keecker executing it.
+     *
+     * @param linear velocity, between -0.5 and 0.5 m/s
+     * @param angular velocity between -3.0 and 3.0 rd/s
+     */
+    suspend fun setVelocity(linear: Double, angular: Double)
+
+    /**
+     * Stops the current command, setting keecker in free wheel
+     */
+    suspend fun stop()
 }
 
 interface MovementAsyncClient {
     fun goToRelativeAsync(x: Double, y: Double, th: Double) : CompletableFutureCompat<Boolean>
+    suspend fun setVelocityAsync(linear: Double, angular: Double): CompletableFutureCompat<Unit>
+    suspend fun stopAsync() : CompletableFutureCompat<Unit>
 }
 
 class MovementClient(
@@ -79,9 +95,31 @@ class MovementClient(
         return deffered.await()
     }
 
+    override suspend fun setVelocity(linear: Double, angular: Double) {
+        mvtPlannerConnection.execute {
+            it.setManualCommand(true, linear / 0.5, angular / 3.0)
+        }
+    }
+
+    override suspend fun stop() {
+        mvtPlannerConnection.execute { it.setManualCommand(false, 0.0, 0.0) }
+    }
+
     override fun goToRelativeAsync(x: Double, y: Double, th: Double) : CompletableFutureCompat<Boolean> {
         return GlobalScope.async {
             goToRelative(x, y, th)
+        }.asCompletableFuture()
+    }
+
+    override suspend fun setVelocityAsync(linear: Double, angular: Double): CompletableFutureCompat<Unit> {
+        return GlobalScope.async {
+            setVelocity(linear, angular)
+        }.asCompletableFuture()
+    }
+
+    override suspend fun stopAsync(): CompletableFutureCompat<Unit> {
+        return GlobalScope.async {
+            stop()
         }.asCompletableFuture()
     }
  }
