@@ -31,6 +31,8 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 
+// TODO permission check
+
 interface MovementCoroutineClient {
 
     /**
@@ -53,12 +55,19 @@ interface MovementCoroutineClient {
      * Stops the current command, setting keecker in free wheel
      */
     suspend fun stop()
+
+    /**
+     * Align to the predominant front facing plane.
+     * Can take up to 10 seconds.
+     */
+    suspend fun alignToWall(): Boolean
 }
 
 interface MovementAsyncClient {
     fun goToRelativeAsync(x: Double, y: Double, th: Double) : CompletableFutureCompat<Boolean>
-    suspend fun setVelocityAsync(linear: Double, angular: Double): CompletableFutureCompat<Unit>
-    suspend fun stopAsync() : CompletableFutureCompat<Unit>
+    fun setVelocityAsync(linear: Double, angular: Double): CompletableFutureCompat<Unit>
+    fun stopAsync() : CompletableFutureCompat<Unit>
+    fun alignToWallAsync(): CompletableFutureCompat<Boolean>
 }
 
 class MovementClient(
@@ -86,7 +95,7 @@ class MovementClient(
 
     override suspend fun goToRelative(x: Double, y: Double, theta: Double): Boolean {
         val deffered = CompletableDeferred<Boolean>()
-        val subscriber = object : IpcSubscriber<RelativeGoToStatus>(RelativeGoToStatus::class.java!!, 10) {
+        val subscriber = object : IpcSubscriber<RelativeGoToStatus>(RelativeGoToStatus::class.java, 10) {
             override fun onNewMessage(msg: RelativeGoToStatus) {
                 deffered.complete(msg.success)
             }
@@ -105,21 +114,45 @@ class MovementClient(
         mvtPlannerConnection.execute { it.setManualCommand(false, 0.0, 0.0) }
     }
 
+    override suspend fun alignToWall(): Boolean {
+        val deffered = CompletableDeferred<Boolean>()
+        val subscriber = object : IpcSubscriber<AlignToWallStatus>(AlignToWallStatus::class.java, 10) {
+            override fun onNewMessage(msg: AlignToWallStatus) {
+                deffered.complete(msg.success)
+            }
+        }
+        mvtPlannerConnection.execute { it.alignToWall(subscriber) }
+        return deffered.await()
+    }
+
     override fun goToRelativeAsync(x: Double, y: Double, th: Double) : CompletableFutureCompat<Boolean> {
+
+        GlobalScope.async {
+            goToRelative(x, y, th)
+        }.invokeOnCompletion {
+            // ton callback
+        }
+
         return GlobalScope.async {
             goToRelative(x, y, th)
         }.asCompletableFuture()
     }
 
-    override suspend fun setVelocityAsync(linear: Double, angular: Double): CompletableFutureCompat<Unit> {
+    override fun setVelocityAsync(linear: Double, angular: Double): CompletableFutureCompat<Unit> {
         return GlobalScope.async {
             setVelocity(linear, angular)
         }.asCompletableFuture()
     }
 
-    override suspend fun stopAsync(): CompletableFutureCompat<Unit> {
+    override fun stopAsync(): CompletableFutureCompat<Unit> {
         return GlobalScope.async {
             stop()
+        }.asCompletableFuture()
+    }
+
+    override fun alignToWallAsync(): CompletableFutureCompat<Boolean> {
+        return GlobalScope.async {
+            alignToWall()
         }.asCompletableFuture()
     }
  }
