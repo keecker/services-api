@@ -1,4 +1,4 @@
-image: eu.gcr.io/x5-omega-messenger-8/services:v7
+image: eu.gcr.io/x5-omega-messenger-8/services:v12
 
 stages:
   - build
