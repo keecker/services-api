@@ -3,7 +3,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-package com.keecker.services.utils;
+package com.keecker.services.interfaces.utils;
 
 import org.junit.After;
 import org.junit.Before;

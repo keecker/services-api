@@ -15,7 +15,7 @@
 
 extern "C" {
 
-JNIEXPORT jobject JNICALL Java_com_keecker_services_utils_sharedmemory_NativeByteBuffer_fdToByteBuffer(
+JNIEXPORT jobject JNICALL Java_com_keecker_services_interfaces_utils_sharedmemory_NativeByteBuffer_fdToByteBuffer(
     JNIEnv * env, jobject /*thiz*/, jint fd, jint size) {
     void * ptr = mmap(0, size, PROT_READ, MAP_SHARED, static_cast<int>(fd), 0);
     if (ptr == MAP_FAILED) {
@@ -33,14 +33,14 @@ JNIEXPORT jobject JNICALL Java_com_keecker_services_utils_sharedmemory_NativeByt
     return bb;
 }
 
-JNIEXPORT jint JNICALL Java_com_keecker_services_utils_sharedmemory_NativeByteBuffer_munmapByteBuffer(
+JNIEXPORT jint JNICALL Java_com_keecker_services_interfaces_utils_sharedmemory_NativeByteBuffer_munmapByteBuffer(
     JNIEnv * env, jobject /*thiz*/, jobject byte_buffer, jint size) {
     void * addr = env->GetDirectBufferAddress(byte_buffer);
     int err = munmap(addr, size);
     return err;
 }
 
-JNIEXPORT void JNICALL Java_com_keecker_services_utils_sharedmemory_NativeByteBuffer_copyByteArrayToFd(
+JNIEXPORT void JNICALL Java_com_keecker_services_interfaces_utils_sharedmemory_NativeByteBuffer_copyByteArrayToFd(
     JNIEnv *env, jobject /*thiz*/, jbyteArray src, jint destFd)
 {
     jsize array_length = env->GetArrayLength(src);

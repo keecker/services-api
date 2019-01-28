@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package com.keecker.services.navigation.interfaces;
+package com.keecker.services.interfaces.navigation;
 
-option java_package = "com.keecker.services.navigation.interfaces";
+option java_package = "com.keecker.services.interfaces.navigation";
 
 // @hide
 message AlignToWallStatus {
