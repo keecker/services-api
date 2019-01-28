@@ -12,8 +12,8 @@ buildscript {
       url 'http://maven.keecker.com/artifactory/internal-snapshot'
       name 'keecker'
       credentials {
-        username = "${artifactory_user}"
-        password = "${artifactory_password}"
+        username project.getProperty('artifactory_user')
+        password project.getProperty('artifactory_password')
       }
     }
   }
@@ -143,8 +143,8 @@ publishing {
       url 'http://maven.keecker.com/artifactory/internal-snapshot-local'
       name 'keecker'
       credentials {
-        username = "${artifactory_user}"
-        password = "${artifactory_password}"
+        username project.getProperty('artifactory_user')
+        password project.getProperty('artifactory_password')
       }
     }
   }
