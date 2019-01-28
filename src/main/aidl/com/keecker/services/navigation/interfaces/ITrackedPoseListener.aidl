@@ -1,7 +1,7 @@
 package com.keecker.services.navigation.interfaces;
 
 import com.keecker.common.utils.map.Pose;
-import com.keecker.hardware.camera.interfaces.Frame;
+import com.keecker.embedded.camera.interfaces.Frame;
 
 /** @hide */
 oneway interface ITrackedPoseListener {

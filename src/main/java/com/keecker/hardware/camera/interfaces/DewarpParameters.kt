@@ -1,4 +1,4 @@
-package com.keecker.hardware.camera.interfaces
+package com.keecker.embedded.camera.interfaces
 
 import android.graphics.Point
 import android.os.Parcel

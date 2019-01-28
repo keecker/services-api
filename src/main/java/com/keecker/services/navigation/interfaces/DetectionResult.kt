@@ -11,7 +11,7 @@ package com.keecker.services.navigation.interfaces
 import android.graphics.RectF
 import android.os.Parcel
 import android.os.Parcelable
-import com.keecker.hardware.camera.interfaces.Frame
+import com.keecker.embedded.camera.interfaces.Frame
 
 data class DetectionResult (
         var id : String,

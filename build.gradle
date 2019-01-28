@@ -106,7 +106,7 @@ android {
 
   aidlPackageWhiteList "com/keecker/services/utils/IIpcSubscriber.aidl"
   aidlPackageWhiteList "com/keecker/services/utils/sharedmemory/ISharedMemorySubscriber.aidl"
-  aidlPackageWhiteList "com/keecker/hardware/robot/interfaces/MovementSafetiesStatus.aidl"
+  aidlPackageWhiteList "com/keecker/embedded/stm/interfaces/MovementSafetiesStatus.aidl"
   aidlPackageWhiteList "com/keecker/services/utils/ILowBatteryNotificationListener.aidl"
   aidlPackageWhiteList "com/keecker/services/navigation/interfaces/ITrackedPoseListener.aidl"
 }

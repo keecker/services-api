@@ -9,8 +9,8 @@ package com.keecker.services.navigation.interfaces;
 
 import android.graphics.RectF;
 import com.keecker.common.utils.map.Pose;
-import com.keecker.hardware.camera.interfaces.Frame;
-import com.keecker.hardware.camera.interfaces.VideoFormat;
+import com.keecker.embedded.camera.interfaces.Frame;
+import com.keecker.embedded.camera.interfaces.VideoFormat;
 import com.keecker.services.navigation.interfaces.IChargingStationListener;
 import com.keecker.services.navigation.interfaces.ITrackedPoseListener;
 import com.keecker.services.navigation.interfaces.ITrackingController;

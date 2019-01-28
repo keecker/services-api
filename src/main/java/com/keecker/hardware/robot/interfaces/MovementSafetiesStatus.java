@@ -5,7 +5,7 @@
  *
  * Created by Cyril Lugan <cyril@keecker.com> on 2018-10-16
  */
-package com.keecker.hardware.robot.interfaces;
+package com.keecker.embedded.stm.interfaces;
 
 import android.os.Parcel;
 import android.os.Parcelable;

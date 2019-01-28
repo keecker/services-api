@@ -3,7 +3,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  */
-package com.keecker.hardware.camera.interfaces;
+package com.keecker.embedded.camera.interfaces;
 
-parcelable Frame;
+parcelable VideoFormat;
 
