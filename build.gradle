@@ -92,20 +92,19 @@ android {
     versionName '1.0'
     multiDexEnabled true
     testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
-    ndk { abiFilters 'arm64-v8a' }
+    ndk.abiFilters 'arm64-v8a'
   }
 
-  externalNativeBuild { cmake { path "CMakeLists.txt" } }
+  externalNativeBuild.cmake.path "CMakeLists.txt"
 
-  buildTypes {
-    release {
-      minifyEnabled false
-      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-    }
+  buildTypes.release {
+    minifyEnabled false
+    proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
   }
 
   aidlPackageWhiteList "com/keecker/services/interfaces/IApiService.aidl"
   aidlPackageWhiteList "com/keecker/services/interfaces/embedded/stm/MovementSafetiesStatus.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/DetectionResult.aidl"
   aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IChargingStationListener.aidl"
   aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IMovementPerceptionService.aidl"
   aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IMovementPlannerService.aidl"
@@ -125,13 +124,12 @@ android {
 
 dependencies {
   implementation 'com.squareup.wire:wire-runtime:2.0.3'
-
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
 
-
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.mockito:mockito-core:2.8.9'
+
   androidTestImplementation 'com.android.support.test:rules:1.0.1'
 }
 
