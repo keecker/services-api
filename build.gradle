@@ -104,11 +104,23 @@ android {
     }
   }
 
-  aidlPackageWhiteList "com/keecker/services/interfaces/utils/IIpcSubscriber.aidl"
-  aidlPackageWhiteList "com/keecker/services/interfaces/utils/sharedmemory/ISharedMemorySubscriber.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/IApiService.aidl"
   aidlPackageWhiteList "com/keecker/services/interfaces/embedded/stm/MovementSafetiesStatus.aidl"
-  aidlPackageWhiteList "com/keecker/services/interfaces/utils/ILowBatteryNotificationListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IChargingStationListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IMovementPerceptionService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IMovementPlannerService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IMovementSafetiesListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IOdometryListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IPerceptionService.aidl"
   aidlPackageWhiteList "com/keecker/services/interfaces/navigation/ITrackedPoseListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/ITrackingController.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IWallSegmentationListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/projection/IProjectorService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/IIpcSubscriber.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/ILowBatteryNotificationListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/IpcMessage.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/sharedmemory/ISharedBufferCallbacks.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/sharedmemory/ISharedMemorySubscriber.aidl"
 }
 
 dependencies {
