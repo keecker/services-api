@@ -9,12 +9,11 @@ import android.content.Context;
 
 import com.keecker.services.interfaces.utils.KeeckerServiceConnection;
 
-@Deprecated
 public class ProjectorServiceConnector extends KeeckerServiceConnection<IProjectorService>{
 
-    private static final String PACKAGE_NAME = "com.keecker.services";
+    private static final String PACKAGE_NAME = "com.keecker.services.interfaces";
     private static final String ACTION_BIND_PROJECTOR =
-            "com.keecker.services.ACTION_BIND_KEECKER_PROJECTOR";
+            "com.keecker.services.interfaces.ACTION_BIND_KEECKER_PROJECTOR";
 
     @Deprecated
     /** Once all service connections are managed by dagger this method should be removed */

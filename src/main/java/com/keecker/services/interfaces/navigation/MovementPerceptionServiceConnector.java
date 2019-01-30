@@ -1,21 +1,16 @@
-package com.keecker.services.interfaces.navigation;
-
-import android.content.Context;
-
-import com.keecker.services.interfaces.utils.KeeckerServiceConnection;
 /*
  * Created by Thomas Gallagher on 4/18/17.
  */
 
-/**
- * @deprecated  As of release 0.2.0, replaced by {@link PerceptionClient}
- */
-@Deprecated
-public class MovementPerceptionServiceConnector extends KeeckerServiceConnection<IMovementPerceptionService> {
+package com.keecker.services.interfaces.navigation;
 
-    private static final String PACKAGE_NAME = "com.keecker.services";
+import android.content.Context;
+import com.keecker.services.interfaces.utils.KeeckerServiceConnection;
+
+public class MovementPerceptionServiceConnector extends KeeckerServiceConnection<IMovementPerceptionService> {
+    private static final String PACKAGE_NAME = "com.keecker.services.interfaces";
     private static final String ACTION_BIND_MOVEMENT_PERCEPTION =
-            "com.keecker.services.navigation.ACTION_BIND_MOVEMENT_PERCEPTION";
+            "com.keecker.services.interfaces.navigation.ACTION_BIND_MOVEMENT_PERCEPTION";
 
     /**
      * Default constructor. Package visibility as it's supposed to be provided by dagger.

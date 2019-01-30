@@ -16,7 +16,7 @@ import com.keecker.services.interfaces.navigation.ITrackedPoseListener;
 import com.keecker.services.interfaces.navigation.ITrackingController;
 import com.keecker.services.interfaces.navigation.IWallSegmentationListener;
 import com.keecker.services.interfaces.navigation.DetectionResult;
-import com.keecker.services.interfaces.utils.deeplearning.ModelID;
+import com.keecker.services.interfaces.machinelearning.deeplearning.ModelID;
 
 
 /** @hide */

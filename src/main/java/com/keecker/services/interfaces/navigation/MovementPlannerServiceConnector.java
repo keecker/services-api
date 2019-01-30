@@ -9,15 +9,11 @@ import android.content.Context;
 
 import com.keecker.services.interfaces.utils.KeeckerServiceConnection;
 
-/**
- * @deprecated  As of release 0.2.0, replaced by {@link NavigationClient}
- */
-@Deprecated
 public class MovementPlannerServiceConnector extends KeeckerServiceConnection<IMovementPlannerService> {
 
-    private static final String PACKAGE_NAME = "com.keecker.services";
+    private static final String PACKAGE_NAME = "com.keecker.services.interfaces";
     private static final String ACTION_BIND_MOVEMENT_PLANNER =
-            "com.keecker.services.navigation.ACTION_BIND_MOVEMENT_PLANNER";
+            "com.keecker.services.interfaces.navigation.ACTION_BIND_MOVEMENT_PLANNER";
 
     /**
      * Default constructor. Package visibility as it's supposed to be provided by dagger.
