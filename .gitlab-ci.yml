@@ -16,7 +16,9 @@ Build:
 
 Unit Tests:
   stage: test
-  script: ./gradlew test -x lint --parallel --quiet
+  script:
+    - ./gradlew test jacocoTestReport -x lint --parallel --quiet
+    - grep -oP "(Total)(.*?)(\d{1,3}%)" "build/reports/jacoco/jacocoTestReport/html/index.html"
   artifacts:
     name: "${CI_PROJECT_NAME}.unittests.${CI_COMMIT_SHORT_SHA}"
     when: on_failure
