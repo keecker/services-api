@@ -27,10 +27,10 @@ import android.content.Intent
 import android.os.IBinder
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
-import com.keecker.services.projection.interfaces.IProjectorService
-import com.keecker.services.utils.KeeckerServiceConnectionTest
-import com.keecker.services.utils.test.IAidlTest
-import com.keecker.services.utils.test.OneWayListener
+import com.keecker.services.interfaces.projection.IProjectorService
+import com.keecker.services.interfaces.utils.KeeckerServiceConnectionTest
+import com.keecker.services.interfaces.utils.test.IAidlTest
+import com.keecker.services.interfaces.utils.test.OneWayListener
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.delay
@@ -53,10 +53,10 @@ class KeeckerServiceConnectionTest {
     */
     private val outerProcessBindingInfo = object : ServiceBindingInfo<IAidlTest> {
         override fun getIntent(): Intent {
-            val intent = Intent("com.keecker.services.utils.test.BIND_OUTER_PROCESS")
+            val intent = Intent("com.keecker.services.interfaces.utils.test.BIND_OUTER_PROCESS")
             intent.component = ComponentName(
                    "com.keecker.services.interfaces.test",
-                    "com.keecker.services.utils.KeeckerServiceConnectionTest\$AidlOuterProcessService")
+                    "com.keecker.services.interfaces.utils.KeeckerServiceConnectionTest\$AidlOuterProcessService")
             return intent
         }
 
@@ -249,7 +249,7 @@ class KeeckerServiceConnectionTest {
                 val intent = outerProcessBindingInfo.getIntent()
                 intent.component = ComponentName(
                    "com.keecker.services.interfaces.test",
-                    "com.keecker.services.utils.KeeckerServiceConnectionTest\$UnexistingService")
+                    "com.keecker.services.interfaces.utils.KeeckerServiceConnectionTest\$UnexistingService")
                 return intent
             }
             override fun toInterface(binder: IBinder): IAidlTest {

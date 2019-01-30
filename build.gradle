@@ -77,11 +77,11 @@ android {
     }
   }
 
-  aidlPackageWhiteList "com/keecker/services/utils/IIpcSubscriber.aidl"
-  aidlPackageWhiteList "com/keecker/services/utils/sharedmemory/ISharedMemorySubscriber.aidl"
-  aidlPackageWhiteList "com/keecker/hardware/robot/interfaces/MovementSafetiesStatus.aidl"
-  aidlPackageWhiteList "com/keecker/services/utils/ILowBatteryNotificationListener.aidl"
-  aidlPackageWhiteList "com/keecker/services/navigation/interfaces/ITrackedPoseListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/IIpcSubscriber.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/sharedmemory/ISharedMemorySubscriber.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/embedded/stm/MovementSafetiesStatus.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/ILowBatteryNotificationListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/ITrackedPoseListener.aidl"
 }
 
 dependencies {
@@ -91,6 +91,7 @@ dependencies {
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.mockito:mockito-core:2.23.0'
   testImplementation 'javax.inject:javax.inject:1'
+
   androidTestImplementation 'com.android.support.test:rules:1.0.2'
   // TODO(cyril) update when updating Android Gradle Plugin
   androidTestImplementation 'org.mockito:mockito-android:2.22.0'
