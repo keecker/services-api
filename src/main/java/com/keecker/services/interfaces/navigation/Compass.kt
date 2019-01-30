@@ -24,12 +24,13 @@ package com.keecker.services.interfaces.navigation
 import android.os.Parcel
 import android.os.Parcelable
 
-data class Compass(val timestamp: Double,
-    val northDirection: Double,
-    val northConfidence: Double,
-    val strength: Double,
-    val calibrationX: Double,
-    val calibrationY: Double): Parcelable {
+data class Compass(
+    @JvmField val timestamp: Double,
+    @JvmField val northDirection: Double,
+    @JvmField val northConfidence: Double,
+    @JvmField val strength: Double,
+    @JvmField val calibrationX: Double,
+    @JvmField val calibrationY: Double): Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readDouble(),
             parcel.readDouble(),

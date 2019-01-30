@@ -24,7 +24,7 @@ package com.keecker.services.interfaces.navigation;
 import android.os.Parcel
 import android.os.Parcelable
 
-data class KidnappingStatus(val kidnapped: Boolean): Parcelable {
+data class KidnappingStatus(@JvmField val kidnapped: Boolean): Parcelable {
     constructor(parcel: Parcel) : this(parcel.readInt() == 1)
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
