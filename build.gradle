@@ -12,8 +12,8 @@ buildscript {
       url 'http://maven.keecker.com/artifactory/internal-snapshot'
       name 'keecker'
       credentials {
-        username = "${artifactory_user}"
-        password = "${artifactory_password}"
+        username project.getProperty('artifactory_user')
+        password project.getProperty('artifactory_password')
       }
     }
   }
@@ -22,7 +22,7 @@ buildscript {
   ext.dokka_version = '0.9.17'
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:3.1.4'
+    classpath 'com.android.tools.build:gradle:3.2.1'
     classpath 'digital.wup:android-maven-publish:3.6.2'
     classpath 'com.squareup.wire:wire-compiler:2.0.4-SNAPSHOT-jar-with-dependencies'
     classpath 'com.squareup.wire:wire-gradle-plugin:1.0.0-SNAPSHOT'
@@ -92,34 +92,44 @@ android {
     versionName '1.0'
     multiDexEnabled true
     testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
-    ndk { abiFilters 'arm64-v8a' }
+    ndk.abiFilters 'arm64-v8a'
   }
 
-  externalNativeBuild { cmake { path "CMakeLists.txt" } }
+  externalNativeBuild.cmake.path "CMakeLists.txt"
 
-  buildTypes {
-    release {
-      minifyEnabled false
-      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-    }
+  buildTypes.release {
+    minifyEnabled false
+    proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
   }
 
-  aidlPackageWhiteList "com/keecker/services/utils/IIpcSubscriber.aidl"
-  aidlPackageWhiteList "com/keecker/services/utils/sharedmemory/ISharedMemorySubscriber.aidl"
-  aidlPackageWhiteList "com/keecker/hardware/robot/interfaces/MovementSafetiesStatus.aidl"
-  aidlPackageWhiteList "com/keecker/services/utils/ILowBatteryNotificationListener.aidl"
-  aidlPackageWhiteList "com/keecker/services/navigation/interfaces/ITrackedPoseListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/IApiService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/embedded/stm/MovementSafetiesStatus.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/DetectionResult.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IChargingStationListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IMovementPerceptionService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IMovementPlannerService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IMovementSafetiesListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IOdometryListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IPerceptionService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/ITrackedPoseListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/ITrackingController.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IWallSegmentationListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/projection/IProjectorService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/IIpcSubscriber.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/ILowBatteryNotificationListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/IpcMessage.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/sharedmemory/ISharedBufferCallbacks.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/sharedmemory/ISharedMemorySubscriber.aidl"
 }
 
 dependencies {
   implementation 'com.squareup.wire:wire-runtime:2.0.3'
-
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
 
-
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.mockito:mockito-core:2.8.9'
+
   androidTestImplementation 'com.android.support.test:rules:1.0.1'
 }
 
@@ -143,8 +153,8 @@ publishing {
       url 'http://maven.keecker.com/artifactory/internal-snapshot-local'
       name 'keecker'
       credentials {
-        username = "${artifactory_user}"
-        password = "${artifactory_password}"
+        username project.getProperty('artifactory_user')
+        password project.getProperty('artifactory_password')
       }
     }
   }
