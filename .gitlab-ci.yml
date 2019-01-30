@@ -1,47 +1,53 @@
-image: eu.gcr.io/x5-omega-messenger-8/services:v7
+image: eu.gcr.io/x5-omega-messenger-8/services:v12
 
 stages:
   - build
   - test
   - deploy
 
-build:
+Build:
   stage: build
-  script: ./gradlew assemble
+  script: ./gradlew assemble -x lint --parallel --quiet
   artifacts:
-    expire_in: 4 days
+    name: "${CI_PROJECT_NAME}.build.${CI_COMMIT_SHORT_SHA}"
     paths:
       - .gradle/
       - build/
 
-unittests:
+Unit Tests:
   stage: test
-  script: ./gradlew test
+  script: ./gradlew test -x lint --parallel --quiet
   artifacts:
-    name: "reports_unittests_${CI_PROJECT_NAME}_${CI_BUILD_REF_NAME}"
+    name: "${CI_PROJECT_NAME}.unittests.${CI_COMMIT_SHORT_SHA}"
     when: on_failure
-    expire_in: 4 days
     paths:
-      - build/reports/tests/
+      - build/reports/
 
-#androidtests:
-#  stage: test
-#  script:
-#    - /opt/android-sdk/emulator/emulator -avd x86 -no-audio -no-window &
-#    - /opt/android-sdk/platform-tools/adb wait-for-device
-#    - sleep 5
-#    - ./gradlew connectedAndroidTest
-#  artifacts:
-#    name: "reports_androidtests_${CI_PROJECT_NAME}_${CI_BUILD_REF_NAME}"
-#    when: on_failure
-#    expire_in: 4 days
-#    paths:
-#      - build/reports/androidTests/
+Lint:
+  stage: test
+  script: ./gradlew lint --parallel --quiet
+  artifacts:
+    name: "${CI_PROJECT_NAME}.lint.${CI_COMMIT_SHORT_SHA}"
+    when: on_failure
+    paths:
+      - build/reports/
 
-deploy:
+Android Tests:
+  stage: test
+  tags:
+    - board # Requires a board
+  script:
+    - ./gradlew connectedAndroidTest
+  artifacts:
+    name: "${CI_PROJECT_NAME}.androidtests.${CI_COMMIT_SHORT_SHA}"
+    when: on_failure
+    paths:
+      - build/reports/
+
+Deploy on Maven:
   stage: deploy
   script: ./gradlew publish
   dependencies:
-    - build
+    - Build
   only:
     - tags

@@ -66,22 +66,34 @@ android {
     versionCode tagVersionCode
     versionName tagVersionName
     testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
-    ndk { abiFilters 'arm64-v8a' }
+    ndk.abiFilters 'arm64-v8a'
   }
+
   externalNativeBuild.cmake.path "CMakeLists.txt"
 
-  buildTypes {
-    release {
-      minifyEnabled false
-      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-    }
+  buildTypes.release {
+    minifyEnabled false
+    proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
   }
 
-  aidlPackageWhiteList "com/keecker/services/utils/IIpcSubscriber.aidl"
-  aidlPackageWhiteList "com/keecker/services/utils/sharedmemory/ISharedMemorySubscriber.aidl"
-  aidlPackageWhiteList "com/keecker/hardware/robot/interfaces/MovementSafetiesStatus.aidl"
-  aidlPackageWhiteList "com/keecker/services/utils/ILowBatteryNotificationListener.aidl"
-  aidlPackageWhiteList "com/keecker/services/navigation/interfaces/ITrackedPoseListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/IApiService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/embedded/stm/MovementSafetiesStatus.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/DetectionResult.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IChargingStationListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IMovementPerceptionService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IMovementPlannerService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IMovementSafetiesListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IOdometryListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IPerceptionService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/ITrackedPoseListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/ITrackingController.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/navigation/IWallSegmentationListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/projection/IProjectorService.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/IIpcSubscriber.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/ILowBatteryNotificationListener.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/IpcMessage.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/sharedmemory/ISharedBufferCallbacks.aidl"
+  aidlPackageWhiteList "com/keecker/services/interfaces/utils/sharedmemory/ISharedMemorySubscriber.aidl"
 }
 
 dependencies {
@@ -91,6 +103,7 @@ dependencies {
   testImplementation 'junit:junit:4.12'
   testImplementation 'org.mockito:mockito-core:2.23.0'
   testImplementation 'javax.inject:javax.inject:1'
+
   androidTestImplementation 'com.android.support.test:rules:1.0.2'
   // TODO(cyril) update when updating Android Gradle Plugin
   androidTestImplementation 'org.mockito:mockito-android:2.22.0'
@@ -127,8 +140,8 @@ publishing {
         url 'http://maven.keecker.com/artifactory/internal-snapshot-local'
         name 'keecker'
         credentials {
-            username = "${artifactory_user}"
-            password = "${artifactory_password}"
+          username project.getProperty('artifactory_user')
+          password project.getProperty('artifactory_password')
         }
       }
     }
@@ -144,15 +157,15 @@ dokka {
 
   // Suppress legacy packages, still not in the official API
   packageOptions {
-    prefix = "com.keecker.services.utils"
+    prefix = "com.keecker.services.interfaces.utils"
     suppress = true
   }
   packageOptions {
-    prefix = "com.keecker.common"
+    prefix = "com.keecker.services.interfaces.common"
     suppress = true
   }
   packageOptions {
-    prefix = "com.keecker.hardware.camera"
+    prefix = "com.keecker.services.interfaces.embedded.camera"
     suppress = true
   }
 }

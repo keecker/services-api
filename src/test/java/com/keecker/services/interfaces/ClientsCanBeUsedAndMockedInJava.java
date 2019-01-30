@@ -18,9 +18,9 @@
 
 package com.keecker.services.interfaces;
 
-import com.keecker.services.projection.interfaces.ProjectorAsyncClient;
-import com.keecker.services.projection.interfaces.ProjectorState;
-import com.keecker.services.utils.CompletableFutureCompat;
+import com.keecker.services.interfaces.projection.ProjectorAsyncClient;
+import com.keecker.services.interfaces.projection.ProjectorState;
+import com.keecker.services.interfaces.utils.CompletableFutureCompat;
 
 import org.junit.Test;
 

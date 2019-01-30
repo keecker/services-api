@@ -18,8 +18,8 @@
 
 package com.keecker.services.interfaces
 
-import com.keecker.services.projection.interfaces.ProjectorCoroutineClient
-import com.keecker.services.projection.interfaces.ProjectorState
+import com.keecker.services.interfaces.projection.ProjectorCoroutineClient
+import com.keecker.services.interfaces.projection.ProjectorState
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.mockito.Mockito.*

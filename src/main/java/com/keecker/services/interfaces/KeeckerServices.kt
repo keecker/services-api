@@ -20,8 +20,8 @@ package com.keecker.services.interfaces
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.keecker.services.navigation.interfaces.PerceptionClient
-import com.keecker.services.projection.interfaces.ProjectorClient
+import com.keecker.services.interfaces.navigation.PerceptionClient
+import com.keecker.services.interfaces.projection.ProjectorClient
 
 /*
  * Android will warn us about storing an arbitrary Context in a static field. If it were
