@@ -155,7 +155,6 @@ task jacocoTestReport(type: JacocoReport) {
     '**/analytics/room/charts/*',
     '**/theme/*',
     '**/input/tv/*',
-    '**/utils/*',
     '**/databinding/**',
     '**/*ViewHolder*',
     '**/*Adapter.*',
