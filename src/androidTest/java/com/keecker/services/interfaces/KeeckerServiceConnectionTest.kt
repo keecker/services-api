@@ -279,6 +279,9 @@ class KeeckerServiceConnectionTest {
         connection.execute { it.getTemperature() }
     }
 
+    // TODO(cyril) Ensures newService instance gets called automatically when bound,
+    // not only when using the binder
+
     // TODO(cyril) Crash on bind, with retries
 
     // TODO(cyril) Waiting for a binder in main thread raises an exception

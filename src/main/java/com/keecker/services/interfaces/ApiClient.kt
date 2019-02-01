@@ -36,7 +36,7 @@ enum class Feature(val permissions : List<String>) {
 enum class FeatureAvailabilty {AVAILABLE, NOT_AVAILABLE, NOT_ALLOWED}
 
 interface ApiChecker {
-    suspend fun getVersion() : String?
+    suspend fun getServicesVersion() : String?
     fun isRunningOnKeecker() : Boolean
     suspend fun isFeatureAvailable(feature: Feature) : FeatureAvailabilty
 }
@@ -68,7 +68,7 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
 
     // TODO(cyril) ask again on reconnect to handle updates?
     val features = HashMap<Feature, FeatureAvailabilty>()
-    var version: String? = null
+    var servicesVersion: String? = null
 
     suspend fun checkApi(): Bundle? {
         val clientInfos = Bundle()
@@ -76,7 +76,7 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
         val servicesInfos = connection.execute { it.checkApi(clientInfos) }
         connection.unbind()
         if (servicesInfos != null) {
-            version = servicesInfos.getString(INFO_VERSION)
+            servicesVersion = servicesInfos.getString(INFO_VERSION)
             val featuresStr = servicesInfos.getStringArrayList(INFO_FEATURES)
             for (feature in featuresStr) {
                 // TODO(cyril) unit test valueOf fails when unkown feature
@@ -92,14 +92,14 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
         return servicesInfos
     }
 
-    override suspend fun getVersion(): String? {
-        if (version == null) checkApi()
-        return version
+    override suspend fun getServicesVersion(): String? {
+        if (servicesVersion == null) checkApi()
+        return servicesVersion
     }
 
     override suspend fun isFeatureAvailable(feature: Feature) : FeatureAvailabilty {
         // Fetch Api infos if not already done
-        if (version == null) checkApi()
+        if (servicesVersion == null) checkApi()
         val availability = features.get(feature) ?: FeatureAvailabilty.NOT_AVAILABLE
         if (availability != FeatureAvailabilty.NOT_ALLOWED) {
             return availability

@@ -78,6 +78,6 @@ object KeeckerServices {
 
     suspend fun getVersion(context: Context) : String? {
         initApplicationContext(context)
-        return apiClient.getVersion()
+        return apiClient.getServicesVersion()
     }
 }

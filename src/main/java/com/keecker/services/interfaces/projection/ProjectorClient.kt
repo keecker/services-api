@@ -32,6 +32,8 @@ import java.util.*
  */
 interface ProjectorCoroutineClient {
 
+    suspend fun isApiAccessible() : Boolean
+
     /**
      * @param state Projector state parameters to change, null for the others.
      */
@@ -97,7 +99,7 @@ class ProjectorClient(private val connection: PersistentServiceConnection<IProje
         }
     }
 
-    suspend fun isApiAccessible() : Boolean {
+    override suspend fun isApiAccessible() : Boolean {
         return when (apiChecker.isFeatureAvailable(Feature.PROJECTOR_ACCESS_STATE)) {
             FeatureAvailabilty.AVAILABLE -> true
             FeatureAvailabilty.NOT_ALLOWED -> {
@@ -106,7 +108,7 @@ class ProjectorClient(private val connection: PersistentServiceConnection<IProje
                 false}
             FeatureAvailabilty.NOT_AVAILABLE -> {
                 val clientVersion = BuildConfig.VERSION_NAME
-                val servicesVersion = apiChecker.getVersion() ?: "Unknown"
+                val servicesVersion = apiChecker.getServicesVersion() ?: "Unknown"
                 Log.e(LOG_TAG, "Unsupported API call, " +
                     "Services version: $servicesVersion, client version: $clientVersion")
                 false}
