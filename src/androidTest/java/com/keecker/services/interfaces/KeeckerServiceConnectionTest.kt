@@ -28,9 +28,8 @@ import android.os.IBinder
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
 import com.keecker.services.interfaces.projection.IProjectorService
-import com.keecker.services.interfaces.utils.KeeckerServiceConnectionTest
-import com.keecker.services.interfaces.utils.test.IAidlTest
-import com.keecker.services.interfaces.utils.test.OneWayListener
+import com.keecker.services.interfaces.test.ITypicalService
+import com.keecker.services.interfaces.test.TickListener
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.delay
@@ -51,31 +50,32 @@ class KeeckerServiceConnectionTest {
 
    /**
     * In most of the cases, when binding to a Keecker Service, it runs in another process.
+    * It is also located in another app, requiring to use an intent filter.
     */
-    private val outerProcessBindingInfo = object : ServiceBindingInfo<IAidlTest> {
+    private val outerProcessBindingInfo = object : ServiceBindingInfo<ITypicalService> {
         override fun getIntent(): Intent {
-            val intent = Intent("com.keecker.services.interfaces.utils.test.BIND_OUTER_PROCESS")
+            val intent = Intent("com.keecker.services.interfaces.test.BIND_TYPICAL_SERVICE")
             intent.component = ComponentName(
                    "com.keecker.services.interfaces.test",
-                    "com.keecker.services.interfaces.utils.KeeckerServiceConnectionTest\$AidlOuterProcessService")
+                    "com.keecker.services.interfaces.TypicalServiceInAnotherProcess")
             return intent
         }
 
-        override fun toInterface(binder: IBinder): IAidlTest {
-            return IAidlTest.Stub.asInterface(binder)
+        override fun toInterface(binder: IBinder): ITypicalService {
+            return ITypicalService.Stub.asInterface(binder)
         }
     }
 
     /**
      * Binding
      */
-    private val innerProcessBindingInfo = object : ServiceBindingInfo<IAidlTest> {
+    private val innerProcessBindingInfo = object : ServiceBindingInfo<ITypicalService> {
         override fun getIntent(): Intent {
-            return Intent(context, KeeckerServiceConnectionTest.AidlInnerProcessService::class.java)
+            return Intent(context, TypicalServiceInSameProcess::class.java)
         }
 
-        override fun toInterface(binder: IBinder): IAidlTest {
-            return IAidlTest.Stub.asInterface(binder)
+        override fun toInterface(binder: IBinder): ITypicalService {
+            return ITypicalService.Stub.asInterface(binder)
         }
     }
 
@@ -197,22 +197,22 @@ class KeeckerServiceConnectionTest {
     @Test
     fun clientCanSubscribeWithAnAidlListener() = runBlocking<Unit> {
         // Setup a channel that will be used to get messages
-        val incommingMessages = Channel<String>()
-        val listener = object : OneWayListener.Stub() {
-            override fun onNewMessage(msg: String) {
+        val incommingMessages = Channel<Int>()
+        val listener = object : TickListener.Stub() {
+            override fun onNewSecond(msg: Int) {
                 incommingMessages.sendBlocking(msg)
             }
         }
         val connection = KeeckerServiceConnection(context, outerProcessBindingInfo)
         // Tells the service that we want to get notified about messages
-        connection.execute { it.subscribeToMessages(listener) }
-        // Asks the service to publish something
-        connection.execute { it.publishMessage("hello") }
-        // Asserts we received the message
-        assertEquals("hello", incommingMessages.receive())
+        connection.execute { it.subscribeToTicks(listener) }
+        // Fail with a timeout if we don't receive another one
+        incommingMessages.receive()
         // When no longer needing to be notified, you should unsubscribe
-        connection.execute { it.unsubscribeToMessages(listener) }
-        connection.execute { it.publishMessage("hello") }
+        connection.execute { it.unsubscribeToTicks(listener) }
+        // Empty the list
+        while (!incommingMessages.isEmpty) { incommingMessages.receive() }
+        // We should no longer receive messages
         delay(5000)
         assertTrue(incommingMessages.isEmpty)
     }
@@ -222,20 +222,21 @@ class KeeckerServiceConnectionTest {
         // Starts the service, so it keeps running when disconnecting
         context.startService(outerProcessBindingInfo.getIntent())
         // Setup a channel that will be used to get messages
-        val incommingMessages = Channel<String>()
-        val listener = object : OneWayListener.Stub() {
-            override fun onNewMessage(msg: String) {
+        val incommingMessages = Channel<Int>()
+        val listener = object : TickListener.Stub() {
+            override fun onNewSecond(msg: Int) {
                 incommingMessages.sendBlocking(msg)
             }
         }
         val connection = KeeckerServiceConnection(context, outerProcessBindingInfo)
-        connection.execute { it.subscribeToMessages(listener) }
-        // Asks the service to publish a message in 5s
-        connection.execute { it.publishMessagesDelayed(1, 5000) }
+        connection.execute { it.subscribeToTicks(listener) }
         // Even when unbound, subscribers continues to receive messages. The service
-        // is still bound to the OneWayListener interface.
+        // is still bound to the TickListener interface.
         connection.unbind()
-        assertEquals("0", incommingMessages.receive())
+        // Empty the list
+        while (!incommingMessages.isEmpty) { incommingMessages.receive() }
+        // Fail with a timeout if we don't receive another one
+        incommingMessages.receive()
     }
 
     /*
@@ -247,7 +248,7 @@ class KeeckerServiceConnectionTest {
     // TODO(cyril) This happens when not on Keecker
     @Test()
     fun wrongBindingComponentSilentlyFails() = runBlocking<Unit> {
-        val badBindingIntentInfo = object : ServiceBindingInfo<IAidlTest> {
+        val badBindingIntentInfo = object : ServiceBindingInfo<ITypicalService> {
             override fun getIntent(): Intent {
                 val intent = outerProcessBindingInfo.getIntent()
                 intent.component = ComponentName(
@@ -255,7 +256,7 @@ class KeeckerServiceConnectionTest {
                     "com.keecker.services.interfaces.utils.KeeckerServiceConnectionTest\$UnexistingService")
                 return intent
             }
-            override fun toInterface(binder: IBinder): IAidlTest {
+            override fun toInterface(binder: IBinder): ITypicalService {
                 return outerProcessBindingInfo.toInterface(binder)
             }
         }
