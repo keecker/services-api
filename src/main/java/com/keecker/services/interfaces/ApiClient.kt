@@ -19,29 +19,27 @@
 package com.keecker.services.interfaces
 
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
 import com.keecker.services.interfaces.Constants.LOG_TAG
-import java.util.*
-
-enum class Feature(val permissions : List<String>) {
-    PROJECTOR_ACCESS_STATE(listOf("com.keecker.permission.PROJECTION"))
-}
+import kotlin.collections.HashMap
 
 enum class FeatureAvailabilty {AVAILABLE, NOT_AVAILABLE, NOT_ALLOWED}
 
 interface ApiChecker {
     suspend fun getServicesVersion() : String?
     fun isRunningOnKeecker() : Boolean
-    suspend fun isFeatureAvailable(feature: Feature) : FeatureAvailabilty
+    suspend fun isFeatureAvailable(feature: String) : FeatureAvailabilty
 }
 
-class ApiClient(val connection: PersistentServiceConnection<IApiService>, val context: Context) : ApiChecker {
+class ApiClient(
+        private val connection: PersistentServiceConnection<IApiService>,
+        private val supportedFeatures: Map<String, Set<String>>,
+        private val isPermissionGranted: (String) -> Boolean
+) : ApiChecker {
 
     companion object {
         val bindingInfo = object : ServiceBindingInfo<IApiService> {
@@ -65,7 +63,7 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
     init {
         connection.onServiceConnected {
             // Invalidate cached info on reconnect, in case services were updated
-            features.clear()
+            availableFeatures.clear()
             servicesVersion = null
         }
     }
@@ -74,22 +72,22 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
         return Build.BRAND == "Keecker"
     }
 
-    val features = HashMap<Feature, FeatureAvailabilty>()
+    val availableFeatures = HashMap<String, FeatureAvailabilty>()
     var servicesVersion: String? = null
 
     suspend fun checkApi(): Bundle? {
         val clientInfos = Bundle()
         clientInfos.putString(INFO_VERSION, BuildConfig.VERSION_NAME)
         val servicesInfos = connection.execute { it.checkApi(clientInfos) }
-        connection.unbind()
+        // Stay bound to get notified it the KeeckerServices are updated
         if (servicesInfos != null) {
             servicesVersion = servicesInfos.getString(INFO_VERSION)
-            val featuresStr = servicesInfos.getStringArrayList(INFO_FEATURES)
-            for (feature in featuresStr) {
-                try {
-                    features.put(Feature.valueOf(feature), FeatureAvailabilty.NOT_ALLOWED)
-                } catch (e: IllegalArgumentException) {
-                    // This feature is not known to this sdk version.
+            val servicesFeatures = servicesInfos.getStringArrayList(INFO_FEATURES)
+            if (servicesFeatures != null) {
+                for (feature in servicesFeatures) {
+                    if (supportedFeatures.containsKey(feature)) {
+                        availableFeatures.put(feature, FeatureAvailabilty.NOT_ALLOWED)
+                    }
                 }
             }
         } else {
@@ -103,20 +101,20 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
         return servicesVersion
     }
 
-    override suspend fun isFeatureAvailable(feature: Feature) : FeatureAvailabilty {
+    override suspend fun isFeatureAvailable(feature: String) : FeatureAvailabilty {
         // Fetch Api infos if not already done
         if (servicesVersion == null) checkApi()
-        val availability = features.get(feature) ?: FeatureAvailabilty.NOT_AVAILABLE
+        val availability = availableFeatures.get(feature) ?: FeatureAvailabilty.NOT_AVAILABLE
         if (availability != FeatureAvailabilty.NOT_ALLOWED) {
             return availability
         } else {
-            for (permission in feature.permissions) {
-                val res = context.checkCallingOrSelfPermission(permission)
-                if (res != PackageManager.PERMISSION_GRANTED) {
+            val permissions = supportedFeatures.get(feature) ?: return FeatureAvailabilty.NOT_AVAILABLE
+            for (permission in permissions) {
+                if (!isPermissionGranted.invoke(permission)) {
                     return FeatureAvailabilty.NOT_ALLOWED
                 }
             }
-            features.put(feature, FeatureAvailabilty.AVAILABLE)
+            availableFeatures.put(feature, FeatureAvailabilty.AVAILABLE)
             return FeatureAvailabilty.AVAILABLE
         }
     }

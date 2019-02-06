@@ -5,10 +5,9 @@ import java.util.*
 
 /**
  * Wraps a Service mock to test clients
- * TODO use the logic from the actual KeeckerServiceConnection
  */
 class MockedKeeckerServiceConnection<ServiceInterface:IInterface>(
-        val dummyService : ServiceInterface
+        var dummyService : ServiceInterface
 ) : PersistentServiceConnection<ServiceInterface>{
 
     private var bound = false
@@ -16,8 +15,8 @@ class MockedKeeckerServiceConnection<ServiceInterface:IInterface>(
 
     override suspend fun <T> execute(lambda: (ServiceInterface) -> T): T? {
         if (!bound) {
-            newServiceInstance()
             bound = true
+            pretendANewServiceConnection()
         }
         return lambda.invoke(dummyService)
     }
@@ -26,7 +25,8 @@ class MockedKeeckerServiceConnection<ServiceInterface:IInterface>(
         onNewServiceCallacks.add(lambda)
     }
 
-    fun newServiceInstance() {
+    fun pretendANewServiceConnection(newDummyService: ServiceInterface? = null) {
+        if (newDummyService != null) dummyService = newDummyService
         for (callback in onNewServiceCallacks) {
             callback.invoke(dummyService)
         }

@@ -86,20 +86,24 @@ class ProjectorClientTest {
 
         // We are still subscribed, if the service have been updated / has crashed,
         // a new subscription call is made
-        connection.newServiceInstance()
+        connection.pretendANewServiceConnection(service)
         assertEquals(2, subscribeCalls)
 
         // We are no longer subscribed, nothing happens when reconnecting
         client.unsubscribeToState(listener)
-        connection.newServiceInstance()
+        connection.pretendANewServiceConnection(service)
         assertEquals(2, subscribeCalls)
     }
 
     @Test
     fun `requires the PROJECTOR_ACCESS_STATE feature`() = runBlocking {
         val apiChecker = object : MockedApiChecker() {
-            override suspend fun isFeatureAvailable(feature: Feature): FeatureAvailabilty {
-                return FeatureAvailabilty.NOT_AVAILABLE
+            override suspend fun isFeatureAvailable(feature: String): FeatureAvailabilty {
+                return if (feature == "PROJECTOR_ACCESS_STATE") {
+                    FeatureAvailabilty.NOT_AVAILABLE
+                } else {
+                    FeatureAvailabilty.AVAILABLE
+                }
             }
         }
         val client = makeClient(apiChecker = apiChecker)
@@ -109,7 +113,7 @@ class ProjectorClientTest {
     @Test
     fun `returns null when using the client if API is not available`() = runBlocking {
         val apiChecker = object : MockedApiChecker() {
-            override suspend fun isFeatureAvailable(feature: Feature): FeatureAvailabilty {
+            override suspend fun isFeatureAvailable(feature: String): FeatureAvailabilty {
                 return FeatureAvailabilty.NOT_AVAILABLE
             }
         }
@@ -141,7 +145,7 @@ class ProjectorClientTest {
             return true
         }
 
-        override suspend fun isFeatureAvailable(feature: Feature): FeatureAvailabilty {
+        override suspend fun isFeatureAvailable(feature: String): FeatureAvailabilty {
             return FeatureAvailabilty.AVAILABLE
         }
     }

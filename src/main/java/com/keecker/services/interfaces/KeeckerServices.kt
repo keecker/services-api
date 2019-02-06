@@ -20,6 +20,7 @@ package com.keecker.services.interfaces
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import com.keecker.services.interfaces.navigation.PerceptionClient
 import com.keecker.services.interfaces.projection.ProjectorClient
 
@@ -39,6 +40,11 @@ import com.keecker.services.interfaces.projection.ProjectorClient
 object KeeckerServices {
     lateinit var applicationContext : Context
 
+    val supportedFeatures = mapOf(
+            "PROJECTOR_ACCESS_STATE" to setOf("com.keecker.permission.PROJECTION")
+    )
+
+
     private val projectorClient: ProjectorClient by lazy {
         ProjectorClient(
                 KeeckerServiceConnection(applicationContext, ProjectorClient.bindingInfo),
@@ -53,9 +59,13 @@ object KeeckerServices {
     }
 
     private val apiClient : ApiClient by lazy {
+        val isPermissionGranted = { perm: String ->
+            applicationContext.checkCallingOrSelfPermission(perm) ==
+                    PackageManager.PERMISSION_GRANTED
+        }
         ApiClient(
                 KeeckerServiceConnection(applicationContext, ApiClient.bindingInfo),
-                applicationContext)
+                supportedFeatures, isPermissionGranted)
     }
 
     @JvmStatic

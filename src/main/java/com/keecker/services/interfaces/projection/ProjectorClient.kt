@@ -104,7 +104,7 @@ class ProjectorClient(private val connection: PersistentServiceConnection<IProje
     }
 
     override suspend fun isApiAccessible() : Boolean {
-        return when (apiChecker.isFeatureAvailable(Feature.PROJECTOR_ACCESS_STATE)) {
+        return when (apiChecker.isFeatureAvailable("PROJECTOR_ACCESS_STATE")) {
             FeatureAvailabilty.AVAILABLE -> true
             FeatureAvailabilty.NOT_ALLOWED -> {
                 Log.e(LOG_TAG,
