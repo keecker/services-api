@@ -12,7 +12,7 @@ class MockedKeeckerServiceConnection<ServiceInterface:IInterface>(
 ) : PersistentServiceConnection<ServiceInterface>{
 
     private var bound = false
-    private val onNewServiceCallacks = LinkedList<suspend (ServiceInterface) -> Unit>()
+    private val onNewServiceCallacks = LinkedList<(ServiceInterface) -> Unit>()
 
     override suspend fun <T> execute(lambda: (ServiceInterface) -> T): T? {
         if (!bound) {
@@ -22,11 +22,11 @@ class MockedKeeckerServiceConnection<ServiceInterface:IInterface>(
         return lambda.invoke(dummyService)
     }
 
-    override fun onNewServiceInstance(lambda: suspend (ServiceInterface) -> Unit) {
+    override fun onServiceConnected(lambda: (ServiceInterface) -> Unit) {
         onNewServiceCallacks.add(lambda)
     }
 
-    suspend fun newServiceInstance() {
+    fun newServiceInstance() {
         for (callback in onNewServiceCallacks) {
             callback.invoke(dummyService)
         }

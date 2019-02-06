@@ -7,18 +7,18 @@ import android.os.RemoteCallbackList
 import android.os.RemoteException
 import com.keecker.services.interfaces.test.ITypicalService
 import com.keecker.services.interfaces.test.TickListener
+import java.lang.Thread.sleep
+import kotlin.concurrent.thread
 
 class TypicalServiceBinder : ITypicalService.Stub() {
 
     init {
-        object : Thread() {
-            override fun run() {
-                var count = 0
-                while (isAlive) {
-                    sleep(1000)
-                    count += 1
-                    publishTick(count)
-                }
+        thread {
+            var count = 0
+            while (true) {
+                sleep(1000)
+                count += 1
+                publishTick(count)
             }
         }.start()
     }
@@ -31,6 +31,17 @@ class TypicalServiceBinder : ITypicalService.Stub() {
 
     override fun crash() {
         System.exit(42)
+    }
+
+    override fun crashAfterTheCall() {
+        thread {
+            sleep(1000)
+            System.exit(42)
+        }.start()
+    }
+
+    override fun freeze() {
+        while (true) {}
     }
 
     override fun subscribeToTicks(listener: TickListener) {

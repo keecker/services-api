@@ -25,9 +25,13 @@ import android.content.ServiceConnection
 import android.os.IBinder
 import android.os.IInterface
 import android.os.Looper
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.withTimeoutOrNull
+import android.util.Log
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.util.*
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * To bind to a [android.app.Service] we need to provide:
@@ -58,112 +62,6 @@ interface ServiceBindingInfo<ServiceInterface : IInterface> {
 }
 
 /**
- * Wraps an Android [ServiceConnection] to be used in coroutines.
- *
- * Like an Android ServiceConnection, it may attempt to bind again if the remote service crashed,
- * but it won't do it if dead or unbound.
- */
-class EphemeralServiceConnection(val context: Context, val intent: Intent) :
-        ServiceConnection {
-
-    /**
-     * A task that will be completed on the [onServiceConnected] callback,
-     * which may never happen if something went wrong when binding.
-     */
-    private var bindingTask = CompletableDeferred<IBinder>()
-
-    init {
-        context.bindService(intent, this, Context.BIND_AUTO_CREATE)
-    }
-
-    /**
-     * Called when a connection to the Service has been established, with
-     * the [IBinder] of the communication channel to the
-     * Service.
-     *
-     * **Note:** If the system has started to bind your
-     * client app to a service, it's possible that your app will never receive
-     * this callback. Your app won't receive a callback if there's an issue with
-     * the service, such as the service crashing while being created.
-     *
-     * @param name The concrete component name of the service that has
-     * been connected.
-     *
-     * @param service The IBinder of the Service's communication channel,
-     * which you can now make calls on.
-     */
-    override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-        if (service != null) {
-            bindingTask.complete(service)
-        } else {
-            onNullBinding()
-        }
-    }
-
-    /**
-     * Returns a binder, waiting for the [onServiceConnected] callback if not already received.
-     * This suspending function can block forever if something went wrong when binding, it
-     * is intended to be used with a timeout.
-     *
-     * @return a binder if the connection is alive, null if the connection is dead
-     */
-    suspend fun getBinder() : IBinder? {
-        if (Looper.getMainLooper().thread == Thread.currentThread()) {
-            throw IllegalStateException("This method cannot be called from Main Thread.")
-        }
-        return bindingTask.await()
-    }
-
-    /**
-     * Called when a connection to the Service has been lost.  This typically
-     * happens when the process hosting the service has crashed or been killed.
-     * This does *not* remove the ServiceConnection itself -- this
-     * binding to the service will remain active, and you will receive a call
-     * to [onServiceConnected] when the Service is next running.
-     *
-     * @param name The concrete component name of the service whose
-     * connection has been lost.
-     */
-    override fun onServiceDisconnected(name: ComponentName?) {
-        // TODO(cyril) check if a race condition is possible here
-        // We are expecting another onServiceConnected
-        bindingTask = CompletableDeferred()
-    }
-
-    /**
-     * *Note:* Available in API 26, called manually for now.
-     *
-     * This connection will not be usable, we have no use case of this with the Keecker Services.
-     */
-    private fun onNullBinding() {
-        unbind()
-    }
-
-    /**
-     * *Note:* Since API 26. Not sure if it really gets called.
-     *
-     * Called when the binding to this connection is dead.  This means the
-     * interface will never receive another connection.  The application will
-     * need to unbind and rebind the connection to activate it again.  This may
-     * happen, for example, if the application hosting the service it is bound to
-     * has been updated.
-     *
-     * @param name The concrete component name of the service whose
-     * connection is dead.
-     */
-    override fun onBindingDied(name: ComponentName?) {
-        unbind()
-    }
-
-    /**
-     * Kills that connection, it will never attempt to bind again.
-     */
-    fun unbind() {
-        context.unbindService(this)
-    }
-}
-
-/**
  * A Service connection that will attempt to connect forever.
  * Wraps
  *
@@ -171,7 +69,6 @@ class EphemeralServiceConnection(val context: Context, val intent: Intent) :
  */
 interface PersistentServiceConnection<ServiceInterface: IInterface> {
 
-    // It porefered to execute your tuff here as it catches exceptions
     suspend fun <T> execute(lambda: (ServiceInterface) -> T) : T?
 
     /**
@@ -185,7 +82,7 @@ interface PersistentServiceConnection<ServiceInterface: IInterface> {
      * service instance. It happens when you start the connection, and may happen again
      * if the remote process dies or the app gets updated.
      */
-    fun onNewServiceInstance(lambda: suspend (ServiceInterface) -> Unit)
+    fun onServiceConnected(lambda: (ServiceInterface) -> Unit)
 }
 
 /**
@@ -221,14 +118,9 @@ class KeeckerServiceConnection<ServiceInterface : IInterface>(
         PersistentServiceConnection<ServiceInterface> {
 
     /**
-     * Last used binder interface, null if it failed the last call
-     */
-    private var cachedBinderAsInterface : ServiceInterface? = null
-
-    /**
      * Listeners to be notified when binding to a new service instance.
      */
-    private val onNewServiceCallacks = LinkedList<suspend (ServiceInterface) -> Unit>()
+    private val onServiceConnectedCallacks = LinkedList<(ServiceInterface) -> Unit>()
 
     /**
      * - Wraps an AIDL call and retries it once if it failed.
@@ -237,74 +129,178 @@ class KeeckerServiceConnection<ServiceInterface : IInterface>(
      * @return the result of the AIDL call, null if it failed two times
      */
     override suspend fun <T> execute(lambda: (ServiceInterface) -> T) : T? {
-        for (i in 1 .. 2) {
-            if (cachedBinderAsInterface?.asBinder()?.isBinderAlive != true) {
-                cachedBinderAsInterface = getNewBinderAsInterface()
+        Log.d("CONN", "execute")
+        for (trial in 1 .. 2) {
+            val binder = withTimeoutOrNull(bindingTimeoutMs) { connection.getBinder() }
+            if (binder == null) {
+                // we had a timeout, the connection is most likely dead,
+                // rebind to make android try again
+                connection.unbind()
+                continue
             }
-            val binderAsInterface = cachedBinderAsInterface ?: continue
-
-            try {
-                // TODO(cyril) What happens if this blocks the coroutine?
-                return lambda.invoke(binderAsInterface)
-            } catch (e: Throwable) {
-                // Catch all because AIDL exception handling can be tricky,
-                // In addition to RemoteException, some but not all exceptions thrown by the
-                // server will be propagated.
-                // TODO(cyril) Document and test those cases
-                cachedBinderAsInterface = null
-                exceptionListener?.onRemoteException(e)
-            }
+            // Do not block the coroutine with a blocking IO call
+            Log.d("CONN", "Calling lambda before IO")
+            return withContext(Dispatchers.IO) { execute(binder, lambda) } ?: continue
         }
         return null
     }
 
-    /**
-     * Currently used Service Connection, alive or null
-     */
-    private var connection: EphemeralServiceConnection? = null
-
-    /**
-     * Get a binder from the current Service connection or create a new one.
-     */
-    private suspend fun getNewBinderAsInterface() : ServiceInterface? {
-        for (i in 1 .. 2) {
-            // Creates a new ephemeral connection if not initialized or dead
-            if (connection == null) {
-                connection = EphemeralServiceConnection(context, bindingInfo.getIntent())
-            }
-            val binder = withTimeoutOrNull(bindingTimeoutMs) { connection?.getBinder() }
-            if (binder == null) {
-                // Ephemeral connection is dead, it will not attempt to bind anymore.
-                // Create a new one.
-                unbind()
-            } else {
-                val binderAsInterface = bindingInfo.toInterface(binder)
-                for (callback in onNewServiceCallacks) {
-                    callback.invoke(binderAsInterface)
-                }
-                return binderAsInterface
-            }
+    private fun <T> execute(binder: ServiceInterface, lambda: (ServiceInterface) -> T) : T? {
+        try {
+            Log.d("CONN", "Just before invoke")
+            return lambda.invoke(binder)
+        } catch (e: Throwable) {
+            Log.d("CONN", "Got an exception")
+            // Catch all for now because AIDL exception handling can be tricky,
+            // In addition to RemoteException, some but not all exceptions thrown by the
+            // server will be propagated.
+            // TODO(cyril) Document and test those cases
+            exceptionListener?.onRemoteException(e)
         }
         return null
     }
 
     /**
      * - Notifies when binding to a new Service instance. May it be because it is the first time
-     *   we connect to it, or because it crashed.
-     * - Does not notify when unbinding then rebinding to the same Service instance
+     *   we connect to it, because it crashed or because we rebounded to the same instance.
      * - Called before exectuting any AIDL call that is triggered the bind
      * - Typically used to get the service to its expected state, like resubscribing to some
      *   data after a crash.
      */
-    override fun onNewServiceInstance(lambda: suspend (ServiceInterface) -> Unit) {
-        onNewServiceCallacks.add(lambda)
+    override fun onServiceConnected(lambda: (ServiceInterface) -> Unit) {
+        onServiceConnectedCallacks.add(lambda)
     }
 
-    /**
-     * Unbind to the service.
-     */
     override fun unbind() {
-        connection?.unbind()
-        connection = null
+        connection.unbind()
+    }
+
+    private val connection = object : ServiceConnection {
+
+        val bound = AtomicBoolean(false)
+
+        fun bindIfNeeded() {
+            synchronized(bound) {
+                if (!bound.get()) {
+                    bound.set(true)
+                    context.bindService(bindingInfo.getIntent(), this, Context.BIND_AUTO_CREATE)
+                }
+            }
+        }
+
+        fun unbind() {
+            synchronized(bound) {
+                if (bound.get()) {
+                    bound.set(false)
+                    context.unbindService(this)
+                }
+            }
+        }
+
+        /**
+         * Used to wait for [onServiceConnected] callbacks,
+         * which may never happen if something went wrong when binding.
+         */
+        private val onConnectedEvents = LinkedBlockingQueue<ServiceInterface>()
+
+        val binderMutex = Mutex()
+        private var binderCached : ServiceInterface? = null
+
+        /**
+         * Returns a binder, waiting for the [onServiceConnected] callback if not already received.
+         * This suspending function may never return if something went wrong when binding, it
+         * is intended to be used with a timeout.
+         *
+         * @return a binder if the connection is alive, null if the connection is dead
+         */
+        suspend fun getBinder() : ServiceInterface {
+            if (Looper.getMainLooper().thread == Thread.currentThread()) {
+                // Waiting for a binder in the main thread would never return since the
+                // onServiceConnected method is also called in the main thread.
+                throw IllegalStateException("This method cannot be called from Main Thread.")
+            }
+            bindIfNeeded()
+            binderMutex.withLock {
+                val binder = binderCached
+                return if (binder?.asBinder()?.isBinderAlive == true) {
+                    binder
+                } else {
+                    val newBinder = withContext(Dispatchers.IO) {
+                        onConnectedEvents.take()
+                    }
+                    binderCached = newBinder
+                    newBinder
+                }
+            }
+        }
+
+        /**
+         * Called when a connection to the Service has been established, with
+         * the [IBinder] of the communication channel to the
+         * Service.
+         *
+         * **Note:** If the system has started to bind your
+         * client app to a service, it's possible that your app will never receive
+         * this callback. Your app won't receive a callback if there's an issue with
+         * the service, such as the service crashing while being created.
+         *
+         * @param name The concrete component name of the service that has
+         * been connected.
+         *
+         * @param binder The IBinder of the Service's communication channel,
+         * which you can now make calls on.
+         */
+        override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
+            Log.d("CONN", "onServiceConnected")
+            if (binder != null) {
+                val service = bindingInfo.toInterface(binder)
+                for (callback in onServiceConnectedCallacks) {
+                    execute(service, callback)
+                }
+                onConnectedEvents.put(service)
+            } else {
+                onNullBinding()
+            }
+        }
+
+        /**
+         * Called when a connection to the Service has been lost.  This typically
+         * happens when the process hosting the service has crashed or been killed.
+         * This does *not* remove the ServiceConnection itself -- this
+         * binding to the service will remain active, and you will receive a call
+         * to [onServiceConnected] when the Service is next running.
+         *
+         * @param name The concrete component name of the service whose
+         * connection has been lost.
+         */
+        override fun onServiceDisconnected(name: ComponentName?) {
+            Log.d("CONN", "onServiceDisconnected")
+        }
+
+        /**
+         * *Note:* Available in API 26, called manually for now.
+         *
+         * This connection will not be usable, we have no use case of this with the Keecker Services.
+         */
+        private fun onNullBinding() {
+            throw java.lang.IllegalStateException("Null binding unexpected on Keecker Services")
+        }
+
+        /**
+         * *Note:* Since API 26. Not sure if it really gets called.
+         *
+         * Called when the binding to this connection is dead.  This means the
+         * interface will never receive another connection.  The application will
+         * need to unbind and rebind the connection to activate it again.  This may
+         * happen, for example, if the application hosting the service it is bound to
+         * has been updated.
+         *
+         * @param name The concrete component name of the service whose
+         * connection is dead.
+         */
+        override fun onBindingDied(name: ComponentName?) {
+            Log.d("CONN", "onBindingDied")
+            unbind()
+        }
     }
 }

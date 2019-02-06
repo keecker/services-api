@@ -62,11 +62,18 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
         const val INFO_FEATURES = "features"
     }
 
+    init {
+        connection.onServiceConnected {
+            // Invalidate cached info on reconnect, in case services were updated
+            features.clear()
+            servicesVersion = null
+        }
+    }
+
     override fun isRunningOnKeecker(): Boolean {
         return Build.BRAND == "Keecker"
     }
 
-    // TODO(cyril) ask again on reconnect to handle updates?
     val features = HashMap<Feature, FeatureAvailabilty>()
     var servicesVersion: String? = null
 
@@ -79,7 +86,6 @@ class ApiClient(val connection: PersistentServiceConnection<IApiService>, val co
             servicesVersion = servicesInfos.getString(INFO_VERSION)
             val featuresStr = servicesInfos.getStringArrayList(INFO_FEATURES)
             for (feature in featuresStr) {
-                // TODO(cyril) unit test valueOf fails when unkown feature
                 try {
                     features.put(Feature.valueOf(feature), FeatureAvailabilty.NOT_ALLOWED)
                 } catch (e: IllegalArgumentException) {

@@ -119,6 +119,7 @@ dependencies {
   // TODO(cyril) update when updating Android Gradle Plugin
   androidTestImplementation 'org.mockito:mockito-android:2.22.0'
   androidTestImplementation 'javax.inject:javax.inject:1'
+  androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.0.1'
 }
 
 // Test Coverage definition

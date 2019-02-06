@@ -80,7 +80,11 @@ class ProjectorClient(private val connection: PersistentServiceConnection<IProje
         ProjectorAsyncClient {
 
     init {
-        connection.onNewServiceInstance { onReconnect() }
+        connection.onServiceConnected {
+            if (stateSubscribers.size > 0) {
+                it.subscribeToState(stateSubscriber)
+            }
+        }
     }
 
     companion object {
@@ -140,12 +144,6 @@ class ProjectorClient(private val connection: PersistentServiceConnection<IProje
         stateSubscribers.remove(listener)
         if (stateSubscribers.size == 0) {
             connection.execute { it.unsubscribeToState(stateSubscriber) }
-        }
-    }
-
-    private suspend fun onReconnect() {
-        if (stateSubscribers.size > 0) {
-            connection.execute { it.subscribeToState(stateSubscriber) }
         }
     }
 

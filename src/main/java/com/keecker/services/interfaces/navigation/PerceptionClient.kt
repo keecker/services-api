@@ -64,9 +64,9 @@ class PerceptionClient(
         PerceptionAsyncClient {
 
     init {
-        mvtPerceptionConnection.onNewServiceInstance {
+        mvtPerceptionConnection.onServiceConnected {
             for (subscriber in odometrySubscribers) {
-                mvtPerceptionConnection.execute { it.unsubscribeToOdometry(subscriber) }
+                it.unsubscribeToOdometry(subscriber)
             }
         }
     }

@@ -12,6 +12,10 @@ interface ITypicalService {
 
     // Exits the process when called
     void crash();
+    // Exits the process one sec after the call
+    void crashAfterTheCall();
+    // Never returns
+    void freeze();
 
     // Registers/Unregisters a listener to receive ticks
     void subscribeToTicks(in TickListener listener);
