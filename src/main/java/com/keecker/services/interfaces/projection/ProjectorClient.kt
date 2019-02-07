@@ -32,6 +32,8 @@ import java.util.*
  */
 interface ProjectorCoroutineClient {
 
+    suspend fun isApiAccessible() : Boolean
+
     /**
      * @param state Projector state parameters to change, null for the others.
      */
@@ -78,7 +80,11 @@ class ProjectorClient(private val connection: PersistentServiceConnection<IProje
         ProjectorAsyncClient {
 
     init {
-        connection.onNewServiceInstance { onReconnect() }
+        connection.onServiceConnected {
+            if (stateSubscribers.size > 0) {
+                it.subscribeToState(stateSubscriber)
+            }
+        }
     }
 
     companion object {
@@ -97,8 +103,8 @@ class ProjectorClient(private val connection: PersistentServiceConnection<IProje
         }
     }
 
-    suspend fun isApiAccessible() : Boolean {
-        return when (apiChecker.isFeatureAvailable(Feature.PROJECTOR_ACCESS_STATE)) {
+    override suspend fun isApiAccessible() : Boolean {
+        return when (apiChecker.isFeatureAvailable("PROJECTOR_ACCESS_STATE")) {
             FeatureAvailabilty.AVAILABLE -> true
             FeatureAvailabilty.NOT_ALLOWED -> {
                 Log.e(LOG_TAG,
@@ -106,7 +112,7 @@ class ProjectorClient(private val connection: PersistentServiceConnection<IProje
                 false}
             FeatureAvailabilty.NOT_AVAILABLE -> {
                 val clientVersion = BuildConfig.VERSION_NAME
-                val servicesVersion = apiChecker.getVersion() ?: "Unknown"
+                val servicesVersion = apiChecker.getServicesVersion() ?: "Unknown"
                 Log.e(LOG_TAG, "Unsupported API call, " +
                     "Services version: $servicesVersion, client version: $clientVersion")
                 false}
@@ -138,12 +144,6 @@ class ProjectorClient(private val connection: PersistentServiceConnection<IProje
         stateSubscribers.remove(listener)
         if (stateSubscribers.size == 0) {
             connection.execute { it.unsubscribeToState(stateSubscriber) }
-        }
-    }
-
-    private suspend fun onReconnect() {
-        if (stateSubscribers.size > 0) {
-            connection.execute { it.subscribeToState(stateSubscriber) }
         }
     }
 

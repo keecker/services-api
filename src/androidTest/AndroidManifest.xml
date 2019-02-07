@@ -5,6 +5,17 @@
           android:versionName="0.3">
 
     <application android:label="UtilsTest">
+        <service
+            android:name="com.keecker.services.interfaces.TypicalServiceInAnotherProcess"
+            android:process=":typical_service">
+            <intent-filter>
+                <action
+                    android:name="com.keecker.services.interfaces.test.BIND_TYPICAL_SERVICE" />
+            </intent-filter>
+        </service>
+
+        <service android:name="com.keecker.services.interfaces.TypicalServiceInSameProcess"/>
+
         <service android:name="com.keecker.services.interfaces.utils.pubsub.DumbPublisher"
                  android:process=":pub"/>
         <service android:name="com.keecker.services.interfaces.utils.pubsub.DumbSubscriber"
