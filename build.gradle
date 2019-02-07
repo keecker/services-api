@@ -224,23 +224,28 @@ publishing {
 }
 
 dokka {
-  outputFormat = 'jekyll'
   outputDirectory = "$buildDir/javadoc"
-  moduleName = 'services-api'
 
-  skipDeprecated = true
+  if (System.env['JITPACK'] == "true") {
+    moduleName = 'services-api'
+    outputFormat = 'jekyll'
+    skipDeprecated = true
 
-  // Suppress legacy packages, still not in the official API
-  packageOptions {
-    prefix = "com.keecker.services.interfaces.utils"
-    suppress = true
-  }
-  packageOptions {
-    prefix = "com.keecker.services.interfaces.common"
-    suppress = true
-  }
-  packageOptions {
-    prefix = "com.keecker.services.interfaces.embedded.camera"
-    suppress = true
+    // Suppress legacy packages, still not in the official API
+    packageOptions {
+      prefix = "com.keecker.services.interfaces.utils"
+      suppress = true
+    }
+    packageOptions {
+      prefix = "com.keecker.services.interfaces.common"
+      suppress = true
+    }
+    packageOptions {
+      prefix = "com.keecker.services.interfaces.embedded.camera"
+      suppress = true
+    }
+  } else {
+    moduleName = 'services.interfaces'
+    outputFormat = 'javadoc'
   }
 }
