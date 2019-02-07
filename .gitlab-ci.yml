@@ -1,4 +1,4 @@
-image: eu.gcr.io/x5-omega-messenger-8/services:v12
+image: eu.gcr.io/x5-omega-messenger-8/services:v18
 
 stages:
   - build
@@ -13,6 +13,13 @@ Build:
     paths:
       - .gradle/
       - build/
+
+Build Documentation:
+  stage: build
+  script: ./gradlew dokka $FAST
+  artifacts:
+    paths:
+      - "build/javadoc"
 
 Unit Tests:
   stage: test
@@ -50,5 +57,13 @@ Deploy on Maven:
   script: ./gradlew publish
   dependencies:
     - Build
+  only:
+    - tags
+
+Deploy Documentation:
+  tags:
+    - doc # Can only deploy on the doc server
+  stage: deploy
+  script: deploy-documentation 'services.interfaces' "$(git describe --abbrev=0 --tags --exact-match)" "build/javadoc"
   only:
     - tags
