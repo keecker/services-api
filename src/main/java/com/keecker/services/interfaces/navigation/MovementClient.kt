@@ -16,7 +16,7 @@
  * Created by Cyril Lugan on 2019-01-17.
  */
 
-package com.keecker.services.navigation.interfaces
+package com.keecker.services.interfaces.navigation
 
 import android.content.ComponentName
 import android.content.Intent
@@ -24,9 +24,6 @@ import android.os.IBinder
 import com.keecker.services.interfaces.ApiChecker
 import com.keecker.services.interfaces.PersistentServiceConnection
 import com.keecker.services.interfaces.ServiceBindingInfo
-import com.keecker.services.interfaces.navigation.AlignToWallStatus
-import com.keecker.services.interfaces.navigation.IMovementPlannerService
-import com.keecker.services.interfaces.navigation.RelativeGoToStatus
 import com.keecker.services.interfaces.utils.CompletableFutureCompat
 import com.keecker.services.interfaces.utils.IpcSubscriber
 import com.keecker.services.interfaces.utils.asCompletableFuture

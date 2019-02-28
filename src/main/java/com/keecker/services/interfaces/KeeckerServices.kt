@@ -23,7 +23,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import com.keecker.services.interfaces.navigation.PerceptionClient
 import com.keecker.services.interfaces.projection.ProjectorClient
-import com.keecker.services.navigation.interfaces.MovementClient
+import com.keecker.services.interfaces.navigation.MovementClient
 
 /*
  * Android will warn us about storing an arbitrary Context in a static field. If it were
