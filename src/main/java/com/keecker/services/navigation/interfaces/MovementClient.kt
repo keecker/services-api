@@ -24,9 +24,12 @@ import android.os.IBinder
 import com.keecker.services.interfaces.ApiChecker
 import com.keecker.services.interfaces.PersistentServiceConnection
 import com.keecker.services.interfaces.ServiceBindingInfo
-import com.keecker.services.utils.CompletableFutureCompat
-import com.keecker.services.utils.IpcSubscriber
-import com.keecker.services.utils.asCompletableFuture
+import com.keecker.services.interfaces.navigation.AlignToWallStatus
+import com.keecker.services.interfaces.navigation.IMovementPlannerService
+import com.keecker.services.interfaces.navigation.RelativeGoToStatus
+import com.keecker.services.interfaces.utils.CompletableFutureCompat
+import com.keecker.services.interfaces.utils.IpcSubscriber
+import com.keecker.services.interfaces.utils.asCompletableFuture
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async

@@ -129,7 +129,6 @@ class KeeckerServiceConnection<ServiceInterface : IInterface>(
      * @return the result of the AIDL call, null if it failed two times
      */
     override suspend fun <T> execute(lambda: (ServiceInterface) -> T) : T? {
-        Log.d("CONN", "execute")
         for (trial in 1 .. 2) {
             val binder = withTimeoutOrNull(bindingTimeoutMs) { connection.getBinder() }
             if (binder == null) {
@@ -139,7 +138,6 @@ class KeeckerServiceConnection<ServiceInterface : IInterface>(
                 continue
             }
             // Do not block the coroutine with a blocking IO call
-            Log.d("CONN", "Calling lambda before IO")
             return withContext(Dispatchers.IO) { execute(binder, lambda) } ?: continue
         }
         return null
@@ -147,10 +145,8 @@ class KeeckerServiceConnection<ServiceInterface : IInterface>(
 
     private fun <T> execute(binder: ServiceInterface, lambda: (ServiceInterface) -> T) : T? {
         try {
-            Log.d("CONN", "Just before invoke")
             return lambda.invoke(binder)
         } catch (e: Throwable) {
-            Log.d("CONN", "Got an exception")
             // Catch all for now because AIDL exception handling can be tricky,
             // In addition to RemoteException, some but not all exceptions thrown by the
             // server will be propagated.
@@ -251,7 +247,6 @@ class KeeckerServiceConnection<ServiceInterface : IInterface>(
          * which you can now make calls on.
          */
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
-            Log.d("CONN", "onServiceConnected")
             if (binder != null) {
                 val service = bindingInfo.toInterface(binder)
                 for (callback in onServiceConnectedCallacks) {
@@ -274,7 +269,6 @@ class KeeckerServiceConnection<ServiceInterface : IInterface>(
          * connection has been lost.
          */
         override fun onServiceDisconnected(name: ComponentName?) {
-            Log.d("CONN", "onServiceDisconnected")
         }
 
         /**
@@ -299,7 +293,6 @@ class KeeckerServiceConnection<ServiceInterface : IInterface>(
          * connection is dead.
          */
         override fun onBindingDied(name: ComponentName?) {
-            Log.d("CONN", "onBindingDied")
             unbind()
         }
     }
