@@ -1,7 +1,7 @@
 package com.keecker.embedded.camera.memory
 
 import android.os.ParcelFileDescriptor
-import timber.log.Timber
+import android.util.Log
 import java.io.FileDescriptor
 import java.io.FileInputStream
 import java.nio.channels.FileChannel
@@ -31,7 +31,7 @@ class KeeckerSharedMemory(private val fileDescriptor: FileDescriptor, private va
                     bufferData = mappedByteBuffer.array()
                 }
             } catch (e: Exception) {
-                Timber.e(
+                Log.e("SharedMemory",
                         "Unable to fetch ($length) bytes from file descriptor $fileDescriptor",
                         e)
             }
@@ -49,7 +49,8 @@ class KeeckerSharedMemory(private val fileDescriptor: FileDescriptor, private va
 
     private fun finalize() {
         if (refCounter.get() > 0 || bufferData != null) {
-            Timber.e("Shared memory has not been released..." +
+            Log.e("SharedMemory",
+                    "Shared memory has not been released..." +
                     "Releasing it now!")
             release()
         }
