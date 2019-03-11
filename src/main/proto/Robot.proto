@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package com.keecker.embedded.stm.interfaces;
+
+option java_package = " com.keecker.embedded.stm.interfaces";
+
+// @hide
+message Twist2dStamped {
+    double timestamp = 1;
+    double linear = 2;
+    double angular = 3;
+}
+
+// @hide
+message ProjectorTilt {
+    int32 tilt = 1;
+}
+
+// @hide
+message ProjectorFocus {
+    int32 focus = 1;
+}
+
+// @hide
+message MagneticField {
+    double stamp = 1;
+    double x = 2;
+    double y = 3;
+    double z = 4;
+}
