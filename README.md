@@ -11,14 +11,18 @@ This **Android library** allows your app to access [Keecker](https://www.keecker
 
 ## Getting Started
 
-Please check the [**Keecker Android SDK website**](http://developer.keecker.com) to get started.
+### Prerequisites
+
+- You will need Android Studio, check the install instructions on the [official website](https://developer.android.com/studio).
+- You may want to check "[Build your first app](https://developer.android.com/training/basics/firstapp/)" on the Android developer website.
+- Create a new Android TV app, preferably using the Kotlin language.
 
 ### Add the library in your Android app
 
 [![](https://jitpack.io/v/keecker/services-api.svg)](https://jitpack.io/#keecker/services-api)
 
 1. Add the JitPack repository in your root build.gradle at the end of repositories.
-  
+
    ```gradle
        allprojects {
            repositories {
@@ -27,13 +31,44 @@ Please check the [**Keecker Android SDK website**](http://developer.keecker.com)
            }
        }
    ```
-2. Add the dependency, find the release on [JitPack](https://jitpack.io/#keecker/services-api).
+2. Add the dependency, replace Tag by the latest version: [JitPack](https://jitpack.io/#keecker/services-api).
 
    ```gradle
         dependencies {
-            implementation 'com.github.keecker:services-api:0.2.0-alpha'
+            implementation 'com.github.keecker:services-api:Tag'
         }
    ```
+
+### Use the Keecker Services
+
+In your main AndroidManifest.xml, add the following permission to be allowed to move the projector:
+
+```xml
+<manifest>
+    ....
+    <uses-permission android:name="com.keecker.permission.PROJECTION" />
+```
+
+Add the code that will actually move the projector in your activity:
+
+```kotlin
+fun wobbleProjector() {
+    val projector = KeeckerServices.getProjectorClient(applicationContext)
+    GlobalScope.launch(Dispatchers.IO) {
+        while (true) {
+            projector.setState(ProjectorState(orientation = 0))
+            delay(5000)
+            projector.setState(ProjectorState(orientation = 90))
+        }
+    }
+}
+```
+
+At the moment you can use the following clients:
+
+- [`ProjectorClient`](https://github.com/keecker/services-api/blob/master/src/main/java/com/keecker/services/interfaces/projection/ProjectorClient.kt), requiring the `com.keecker.permission.PROJECTION` permission.
+- [`PerceptionClient`](https://github.com/keecker/services-api/blob/master/src/main/java/com/keecker/services/interfaces/navigation/PerceptionClient.kt), requiring the `com.keecker.permission.PERCEPTION` permission.
+- [`MovementClient`](https://github.com/keecker/services-api/blob/master/src/main/java/com/keecker/services/interfaces/navigation/MovementClient.kt), requiring the `com.keecker.permission.MOVEMENT` permission.
 
 ## Building
 
