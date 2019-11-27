@@ -61,6 +61,8 @@ interface MovementCoroutineClient {
      * Can take up to 10 seconds.
      */
     suspend fun alignToWall(): Boolean
+
+    suspend fun disableAvoidance(disable: Boolean)
 }
 
 interface MovementAsyncClient {
@@ -68,6 +70,7 @@ interface MovementAsyncClient {
     fun setVelocityAsync(linear: Double, angular: Double): CompletableFutureCompat<Unit>
     fun stopAsync() : CompletableFutureCompat<Unit>
     fun alignToWallAsync(): CompletableFutureCompat<Boolean>
+    fun disableAvoidanceAsync(disable: Boolean) : CompletableFutureCompat<Unit>
 }
 
 class MovementClient(
@@ -125,14 +128,11 @@ class MovementClient(
         return deffered.await()
     }
 
+    override suspend fun disableAvoidance(disable: Boolean) {
+        mvtPlannerConnection.execute { it.disableAvoidance(disable) }
+    }
+
     override fun goToRelativeAsync(x: Double, y: Double, th: Double) : CompletableFutureCompat<Boolean> {
-
-        GlobalScope.async {
-            goToRelative(x, y, th)
-        }.invokeOnCompletion {
-            // ton callback
-        }
-
         return GlobalScope.async {
             goToRelative(x, y, th)
         }.asCompletableFuture()
@@ -155,4 +155,10 @@ class MovementClient(
             alignToWall()
         }.asCompletableFuture()
     }
- }
+
+    override fun disableAvoidanceAsync(disable: Boolean): CompletableFutureCompat<Unit> {
+        return GlobalScope.async {
+            disableAvoidance(disable)
+        }.asCompletableFuture()
+    }
+}
